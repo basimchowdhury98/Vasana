@@ -8,5 +8,3 @@ Remind myself of "focus time" on my phone
 1. Delivery: React native + Expo to iPhone
 2. Language: typescript
 3. Feature: Big bright notification on lock screen that Im on "focus time"
-
-
