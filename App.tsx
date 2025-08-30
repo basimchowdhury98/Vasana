@@ -1,10 +1,40 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
-  const [date, setDate] = useState(new Date());
+  const [wakeupTime, setWakeupTime] = useState(new Date());
+
+  useEffect(() => {
+    console.log('Effect triggered')
+    const loadWakeupTime = async () => {
+      try
+      {
+        const timeValue = await AsyncStorage.getItem('wakeup-time');
+        if (timeValue === null)
+        {
+          console.log('No stored time')
+          return;
+        }
+        console.log('Found stored time')
+        var storedTime = new Date(timeValue);
+        setWakeupTime(storedTime);
+      }
+      catch(e)
+      {
+        console.log(e);
+      }
+    }
+    loadWakeupTime();
+  }, [])
+
+  const storeTime = async (time: Date) => {
+    console.log('Time stored')
+    await AsyncStorage.setItem('wakeup-time', time.toISOString());
+    setWakeupTime(time);
+  }
 
   return (
     <View style={styles.container}>
@@ -13,9 +43,12 @@ export default function App() {
       <StatusBar style="auto" />
       <DateTimePicker 
             testID="dateTimePicket"
-            value={date}
+            value={wakeupTime}
             mode="time"
-            onChange={(_, date) => date && setDate(date)}
+            onChange={async (_, date) =>{
+              console.log('Time set');
+              date && await storeTime(date)}
+            } 
           />
     </View>
   );
