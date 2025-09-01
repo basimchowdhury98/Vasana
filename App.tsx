@@ -3,22 +3,29 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function App() {
   const [wakeupTime, setWakeupTime] = useState(new Date());
 
   useEffect(() => {
-    console.log('Effect triggered')
     const loadWakeupTime = async () => {
       try
       {
         const timeValue = await AsyncStorage.getItem('wakeup-time');
         if (timeValue === null)
         {
-          console.log('No stored time')
           return;
         }
-        console.log('Found stored time')
         var storedTime = new Date(timeValue);
         setWakeupTime(storedTime);
       }
@@ -31,7 +38,14 @@ export default function App() {
   }, [])
 
   const storeTime = async (time: Date) => {
-    console.log('Time stored')
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Look at that notification',
+        body: "I'm so proud of myself!",
+      },
+      trigger: null,
+    });
+
     await AsyncStorage.setItem('wakeup-time', time.toISOString());
     setWakeupTime(time);
   }
@@ -46,7 +60,6 @@ export default function App() {
             value={wakeupTime}
             mode="time"
             onChange={async (_, date) =>{
-              console.log('Time set');
               date && await storeTime(date)}
             } 
           />
