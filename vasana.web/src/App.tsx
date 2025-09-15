@@ -1,25 +1,29 @@
 import React, { useState } from 'react';
 import './App.css';
+import RecordingModal from './RecordingModal';
 
 function App() {
-    const [startRecording, setStartRecording] = useState<boolean>(false);
+    const [showRecordingModal, setShowRecordingModal] = useState<boolean>(false);
+
+    async function startRecording() {
+        try {
+            await navigator.mediaDevices.getUserMedia({ audio: true });
+            setShowRecordingModal(true);
+        } catch (error) {
+            console.error('Microphone access denied:', error);
+        }
+    }
     return (
         <div className="App">
             <header className="App-header">
                 <p>
                     Track your habits
                 </p>
-                <button onClick={() => setStartRecording(true)}>
+                <button onClick={startRecording}>
                     Start
                 </button>
             </header>
-            {startRecording && (<div className="modal-overlay">
-                <div className="modal-content">
-                    <h2>Modal Title</h2>
-                    <p>Modal content goes here</p>
-                    <button onClick={() => setStartRecording(false)}>Close</button>
-                </div>
-            </div>)}
+            {showRecordingModal && (<RecordingModal></RecordingModal>)}
         </div>
     );
 }
