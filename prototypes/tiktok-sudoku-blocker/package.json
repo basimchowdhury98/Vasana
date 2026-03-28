@@ -1,0 +1,18 @@
+{
+  "name": "tiktok-sudoku-blocker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test:unit": "node --import tsx --test test/unit/*.test.ts",
+    "test:integration": "node --import tsx test/integration/extension.test.ts",
+    "test": "npm run build && npm run test:unit && npm run test:integration"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "puppeteer-core": "^24.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
