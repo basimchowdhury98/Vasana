@@ -163,9 +163,9 @@ await runTest("Sudoku board renders 9x9 grid with correct structure", async ({ p
     throw new Error(`Expected 81 Sudoku cells, found ${cellInfo.total}`);
   }
 
-  if (cellInfo.empty < 30 || cellInfo.empty > 35) {
+  if (cellInfo.empty < 20 || cellInfo.empty > 25) {
     throw new Error(
-      `Expected 30-35 empty cells (easy), found ${cellInfo.empty}`
+      `Expected 20-25 empty cells (very easy), found ${cellInfo.empty}`
     );
   }
 

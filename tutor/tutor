@@ -1,0 +1,210 @@
+#!/usr/bin/env node
+
+const fs = require("node:fs/promises");
+const path = require("node:path");
+const readline = require("node:readline/promises");
+const { spawn } = require("node:child_process");
+const { runTutorialApp } = require("./tutor-runtime");
+
+const ROOT_DIR = __dirname;
+const TUTORIALS_DIR = path.join(ROOT_DIR, "tutorials");
+const TUTOR_INSTRUCTION_PATH = path.join(ROOT_DIR, "tutor_instruction.md");
+const TUTORIAL_ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
+
+async function main() {
+  const args = process.argv.slice(2);
+  const flags = new Set(args.filter((arg) => arg.startsWith("-")));
+  const positionals = args.filter((arg) => !arg.startsWith("-"));
+
+  if (flags.has("--help") || flags.has("-h")) {
+    printUsage();
+    return;
+  }
+
+  if (positionals.length > 0) {
+    throw new Error("Run `tutor` with no positional arguments, then choose or create a tutorial id in the prompt.");
+  }
+
+  const selection = await promptForTutorialID();
+  if (!selection) {
+    return;
+  }
+
+  const tutorialDir = path.join(TUTORIALS_DIR, selection.id);
+  if (selection.mode === "study") {
+    await runTutorialApp({
+      rootDir: ROOT_DIR,
+      tutorialDir,
+      tutorialJsonPath: path.join(tutorialDir, "tutorial.json"),
+      tutorialHtmlPath: path.join(tutorialDir, "tutorial.html"),
+      notesDir: path.join(tutorialDir, "notes"),
+      shouldOpenBrowser: !flags.has("--no-browser"),
+      shouldAttachTui: !flags.has("--no-attach"),
+    });
+    return;
+  }
+
+  await startAuthoringSession(selection.id, tutorialDir);
+}
+
+async function promptForTutorialID() {
+  await fs.mkdir(TUTORIALS_DIR, { recursive: true });
+  const tutorials = await listTutorials();
+
+  process.stdout.write("Available tutorials:\n");
+  if (tutorials.ready.length === 0) {
+    process.stdout.write("  (none yet)\n");
+  } else {
+    for (const tutorialID of tutorials.ready) {
+      process.stdout.write(`  - ${tutorialID}\n`);
+    }
+  }
+
+  if (tutorials.draft.length > 0) {
+    process.stdout.write("\nDraft tutorials:\n");
+    for (const tutorialID of tutorials.draft) {
+      process.stdout.write(`  - ${tutorialID}\n`);
+    }
+  }
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  try {
+    const answer = (await rl.question("\nTutorial id: ")).trim();
+    if (!answer) {
+      process.stdout.write("No tutorial selected.\n");
+      return null;
+    }
+
+    if (!TUTORIAL_ID_PATTERN.test(answer)) {
+      throw new Error("Tutorial IDs must use lowercase letters, numbers, underscores, or hyphens.");
+    }
+
+    if (tutorials.ready.includes(answer)) {
+      return { mode: "study", id: answer };
+    }
+
+    if (tutorials.draft.includes(answer)) {
+      const shouldContinue = await confirm(
+        rl,
+        `Tutorial \"${answer}\" is a draft without a finished tutorial.json. Continue authoring it?`,
+        true
+      );
+      return shouldContinue ? { mode: "author", id: answer } : null;
+    }
+
+    const shouldCreate = await confirm(
+      rl,
+      `Tutorial \"${answer}\" does not exist. Create it?`,
+      true
+    );
+    return shouldCreate ? { mode: "author", id: answer } : null;
+  } finally {
+    rl.close();
+  }
+}
+
+async function confirm(rl, message, defaultYes) {
+  const suffix = defaultYes ? " [Y/n] " : " [y/N] ";
+  const answer = (await rl.question(`${message}${suffix}`)).trim().toLowerCase();
+
+  if (answer === "") {
+    return defaultYes;
+  }
+
+  if (answer === "y" || answer === "yes") {
+    return true;
+  }
+
+  if (answer === "n" || answer === "no") {
+    return false;
+  }
+
+  process.stdout.write("Please answer yes or no.\n");
+  return confirm(rl, message, defaultYes);
+}
+
+async function startAuthoringSession(tutorialID, tutorialDir) {
+  await fs.mkdir(path.join(tutorialDir, "notes"), { recursive: true });
+  const prompt = await buildAuthoringPrompt({ tutorialID, tutorialDir });
+
+  const exitCode = await new Promise((resolve, reject) => {
+    const child = spawn("opencode", [tutorialDir, "--prompt", prompt], {
+      cwd: tutorialDir,
+      stdio: "inherit",
+    });
+
+    child.once("error", reject);
+    child.once("exit", (code, signal) => {
+      if (signal) {
+        reject(new Error(`OpenCode authoring session exited from signal ${signal}.`));
+        return;
+      }
+      resolve(code ?? 0);
+    });
+  });
+
+  if (exitCode !== 0) {
+    throw new Error(`OpenCode authoring session exited with code ${exitCode}.`);
+  }
+}
+
+async function listTutorials() {
+  try {
+    const entries = await fs.readdir(TUTORIALS_DIR, { withFileTypes: true });
+    const tutorialIDs = entries
+      .filter((entry) => entry.isDirectory() && TUTORIAL_ID_PATTERN.test(entry.name))
+      .map((entry) => entry.name)
+      .sort();
+
+    const ready = [];
+    const draft = [];
+
+    for (const tutorialID of tutorialIDs) {
+      const tutorialJsonPath = path.join(TUTORIALS_DIR, tutorialID, "tutorial.json");
+      try {
+        const stat = await fs.stat(tutorialJsonPath);
+        if (stat.isFile()) {
+          ready.push(tutorialID);
+          continue;
+        }
+      } catch (error) {
+        if (error.code !== "ENOENT") {
+          throw error;
+        }
+      }
+
+      draft.push(tutorialID);
+    }
+
+    return { ready, draft };
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return { ready: [], draft: [] };
+    }
+    throw error;
+  }
+}
+
+async function buildAuthoringPrompt({ tutorialID, tutorialDir }) {
+  const template = await fs.readFile(TUTOR_INSTRUCTION_PATH, "utf8");
+  return template
+    .replaceAll("{{TUTORIAL_ID}}", tutorialID)
+    .replaceAll("{{TUTORIAL_DIR}}", tutorialDir)
+    .replaceAll("{{ROOT_DIR}}", ROOT_DIR);
+}
+
+function printUsage() {
+  process.stdout.write(
+    "Usage:\n" +
+      "  tutor [--no-browser] [--no-attach]\n"
+  );
+}
+
+main().catch((error) => {
+  process.stderr.write(`${error.message}\n`);
+  process.exit(1);
+});

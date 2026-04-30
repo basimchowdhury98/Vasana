@@ -1,0 +1,27 @@
+{
+  "id": "crypto-tutorial",
+  "title": "Crypto Tutorial",
+  "description": "A beginner-friendly tutorial covering hashing, symmetric encryption, and asymmetric encryption.",
+  "modules": [
+    {
+      "id": "hashing",
+      "title": "Hashing",
+      "description": "Learn what cryptographic hashes are and how they are used.",
+      "sections": [
+        {
+          "type": "guide",
+          "title": "Hashing Guide",
+          "description": "A written guide to hashing.",
+          "url": "https://example.com/hashing-guide"
+        },
+        {
+          "type": "tutorial",
+          "title": "Hashing Tutorial",
+          "description": "A hands-on hashing tutorial.",
+          "url": "https://example.com/hashing-tutorial"
+        }
+      ],
+      "aditional-links": []
+    }
+  ]
+}

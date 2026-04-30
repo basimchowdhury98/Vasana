@@ -1,0 +1,253 @@
+{
+  "id": "read-faster-without-losing-comprehension",
+  "title": "How to Read Faster Without Losing Comprehension",
+  "description": "A comprehension-first tutorial for intermediate readers who want to get faster across fantasy books, technical software books, and other long-form reading. It focuses on evidence-based reading mechanics, diagnosing bottlenecks, managing subvocalization, reducing zoning out and rereading, adapting by material type, and building a realistic 30+ minute practice system for both paper and screens.",
+  "modules": [
+    {
+      "id": "reading-speed-without-hype",
+      "title": "Reading Speed Without Hype",
+      "description": "A practical, evidence-based introduction to reading faster without chasing speed-reading myths. Focuses on the real speed/comprehension tradeoff, why eliminating subvocalization is too simplistic, when skimming helps, and how purpose, chunking, selective rereading, and better attention management improve pace without hollow comprehension.",
+      "sections": [
+        {
+          "type": "video",
+          "title": "Reading Assignments: Crash Course Study Skills #2",
+          "description": "Accessible overview of how reading actually works, including eye movements, regressions, and why eliminating subvocalization is a misguided shortcut when comprehension matters.",
+          "url": "https://www.youtube.com/watch?v=WAIUkjsZ5xQ"
+        },
+        {
+          "type": "guide",
+          "title": "So Much to Read, So Little Time: How Do We Read, and Can Speed Reading Help?",
+          "description": "APS summary of the major research review on reading speed: strong on the real limits of speed reading, why RSVP and similar shortcuts hurt comprehension, and why practice and language skill matter more than hacks.",
+          "url": "https://www.psychologicalscience.org/publications/speed_reading.html"
+        },
+        {
+          "type": "tutorial",
+          "title": "A Strategic Approach to Effective and Efficient Reading",
+          "description": "Princeton's practical framework for reading with purpose, surveying before reading, chunking sections, monitoring understanding, and using selective rereading instead of reflexive backtracking.",
+          "url": "https://mcgraw.princeton.edu/strategic-approach-effective-and-efficient-reading"
+        }
+      ],
+      "aditional-links": [
+        {
+          "type": "guide",
+          "title": "Speed Reading Promises Are Too Good to Be True, Scientists Find",
+          "description": "Plain-language APS article summarizing the evidence that faster reading usually trades off with understanding, and that skimming is useful only when gist is the goal.",
+          "url": "https://www.psychologicalscience.org/observer/speed-reading-promises-are-too-good-to-be-true-scientists-find-2"
+        },
+        {
+          "type": "guide",
+          "title": "Tips to Try While You Read",
+          "description": "Oregon State's concise guide for staying engaged while reading: built-in comprehension checks, identifying sticking points, and taking breaks to reduce zoning out during long sessions.",
+          "url": "https://success.oregonstate.edu/learning-corner/reading-writing/while-you-read"
+        }
+      ]
+    },
+    {
+      "id": "diagnose-your-current-bottlenecks",
+      "title": "Diagnose Your Current Bottlenecks",
+      "description": "Build an honest baseline before trying to read faster. This module shows you how to measure words per minute together with comprehension, notice where rereading and zoning out actually start, compare fatigue and focus across paper and screens, and track how fiction, technical text, and other long-form reading change your pace. It also frames subvocalization as something to observe and manage by task difficulty rather than a habit to forcefully eliminate.",
+      "sections": [
+        {
+          "type": "video",
+          "title": "Metacognition - A Brief Explainer",
+          "description": "A short evidence-based introduction to planning, monitoring, and evaluating your own performance, useful for noticing when comprehension drops, attention drifts, or a reading approach is not working.",
+          "url": "https://www.youtube.com/watch?v=sAik_RQY_Dg"
+        },
+        {
+          "type": "guide",
+          "title": "Reading Comprehension Tips",
+          "description": "A practical university guide for diagnosing reading problems in real sessions: set a purpose, break reading into manageable chunks, decide when screen reading is hurting, self-monitor mind wandering, and resume from the right point after attention slips.",
+          "url": "https://learningcenter.unc.edu/tips-and-tools/reading-comprehension-tips/"
+        },
+        {
+          "type": "doc",
+          "title": "Decoding Digital Reading: A Network Meta-analysis of Comprehension Across Devices",
+          "description": "An open-access research summary showing how comprehension differs across paper, tablets, e-readers, computers, and smartphones, with a key diagnostic takeaway that scrolling often hurts comprehension more than static layouts.",
+          "url": "https://commons.und.edu/ehb-fac/107/"
+        },
+        {
+          "type": "tutorial",
+          "title": "Set Your Baseline Speed",
+          "description": "A step-by-step self-assessment: choose representative text, time five minutes, calculate WPM, and score recall/comprehension. It works well as a repeatable baseline across fantasy, technical books, and general long-form reading on both paper and screens.",
+          "url": "https://readlite.in/reading-rituals/reading-speed-test"
+        }
+      ],
+      "aditional-links": [
+        {
+          "type": "doc",
+          "title": "On the Influence of Re-reading on Mind Wandering",
+          "description": "Useful for diagnosing whether repeated rereading is actually helping; this research summary reports that rereading can increase mind wandering without improving comprehension.",
+          "url": "https://experts.umn.edu/en/publications/on-the-influence-of-re-reading-on-mind-wandering"
+        },
+        {
+          "type": "guide",
+          "title": "Speed Reading Myths & Claims",
+          "description": "A concise myth-check on extreme speed claims and subvocalization, helpful for keeping diagnosis realistic and comprehension-first.",
+          "url": "https://speedreading.com/research/controversies-and-claims.php"
+        }
+      ]
+    },
+    {
+      "id": "core-mechanics-pacing-eye-movement-and-subvocalization",
+      "title": "Core Mechanics: Pacing, Eye Movement, and Subvocalization",
+      "description": "Learn the reading mechanics that actually matter for getting faster without giving up comprehension: how fixations, saccades, regressions, and perceptual span shape your pace; how a finger or pointer can reduce unnecessary backtracking and help with zoning out; how to read in slightly larger phrase-sized chunks instead of word-by-word; and how to manage subvocalization flexibly rather than trying to eliminate it. This module is aimed at practical gains for long-form books, technical reading, print, and screens.",
+      "sections": [
+        {
+          "type": "video",
+          "title": "Reading Assignments: Crash Course Study Skills #2",
+          "description": "A balanced overview of reading mechanics that explains saccades, fixations, regressions, and why common speed-reading claims like eliminating subvocalization usually fail when comprehension matters.",
+          "url": "https://www.youtube.com/watch?v=WAIUkjsZ5xQ"
+        },
+        {
+          "type": "guide",
+          "title": "Eye Movements & Visual Processing",
+          "description": "Clear guide to the core mechanics of reading: fixations, saccades, regressions, perceptual span, and parafoveal preview. Useful for understanding why phrase chunking and reducing unnecessary regressions help, but whole-line reading claims do not.",
+          "url": "https://speedreading.com/research/eye-movements-visual-processing.php"
+        },
+        {
+          "type": "doc",
+          "title": "Eye movements, the perceptual span, and reading speed",
+          "description": "Peer-reviewed open-access paper showing the limits of perceptual span, differences between faster and slower readers, and why improving eye guidance works within real visual constraints rather than bypassing them.",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3075059/"
+        },
+        {
+          "type": "tutorial",
+          "title": "Speedreading | Regent University",
+          "description": "Free self-paced practice module with specific drills for pointer pacing ('Sweep Method'), phrase-group scanning ('Hop Method'), and reducing unconscious regressions while keeping comprehension in view.",
+          "url": "https://www.regent.edu/admin/stusrv/student_dev/online_workshops/speedreading/lesson6.cfm"
+        }
+      ],
+      "aditional-links": [
+        {
+          "type": "guide",
+          "title": "Controversies & Common Claims",
+          "description": "Useful companion guide focused on myths and tradeoffs, especially the claim that you should eliminate subvocalization. Good for keeping expectations realistic for dense books and technical reading.",
+          "url": "https://speedreading.com/research/controversies-and-claims.php"
+        }
+      ]
+    },
+    {
+      "id": "fix-zoning-out-and-passive-reading",
+      "title": "Fix Zoning Out and Passive Reading",
+      "description": "Learn how to catch attention drift earlier, stay mentally engaged with long-form text, and reduce blank-page reading without sacrificing comprehension. This module focuses on practical ways to interrupt passive reading, use short recall checks, recover efficiently when you zone out, and avoid common myths such as treating subvocalization as the main problem.",
+      "sections": [
+        {
+          "type": "video",
+          "title": "Oxford Study Skills: How to Read",
+          "description": "A practical university study-skills video that frames reading as purposeful, question-driven work rather than passive page-turning, which fits readers trying to stay engaged with long books and dense nonfiction.",
+          "url": "https://www.youtube.com/watch?v=1QbtOSyE5C8"
+        },
+        {
+          "type": "guide",
+          "title": "Mind-Wandering While Reading: Why It Happens and What to Do",
+          "description": "A focused guide to why readers zone out, how to recognize autopilot reading, and how to use comprehension checkpoints and active engagement to catch drift sooner and reread less.",
+          "url": "https://readlite.in/concepts/mind-wandering-reading"
+        },
+        {
+          "type": "doc",
+          "title": "The relationship between mind wandering and reading comprehension: A meta-analysis",
+          "description": "Open-access research review showing that mind wandering is reliably linked to worse reading comprehension, giving an evidence base for attention-monitoring and anti-passive-reading strategies.",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9971160/"
+        },
+        {
+          "type": "tutorial",
+          "title": "Reading Strategies",
+          "description": "A step-by-step tutorial on chunking reading, turning headings into questions, checking concentration, recalling after sections, and using SQ3R-style active reading to reduce zoning out and unnecessary rereading.",
+          "url": "https://www.stmarys-ca.edu/academics/student-success/tutorial-academic-skills-center/reading-strategies"
+        }
+      ],
+      "aditional-links": [
+        {
+          "type": "guide",
+          "title": "Speed Reading Myths & Claims",
+          "description": "Useful myth-correction on subvocalization: it argues against trying to eliminate inner speech and instead emphasizes matching reading style to comprehension demands.",
+          "url": "https://speedreading.com/research/controversies-and-claims.php"
+        },
+        {
+          "type": "doc",
+          "title": "The way we encounter reading material influences how frequently we mind wander",
+          "description": "Open-access study showing that reading aloud reduced mind wandering compared with silent reading and listening, which makes it a useful fallback tactic when attention keeps slipping.",
+          "url": "https://ncbi.nlm.nih.gov/pmc/articles/PMC3842750/"
+        }
+      ]
+    },
+    {
+      "id": "adjust-by-material-type",
+      "title": "Adjust by Material Type",
+      "description": "Learn an adaptive reading system instead of one fixed speed. For fantasy and other immersive fiction, read mostly at a steady flow pace and slow down only for unfamiliar worldbuilding, emotionally important scenes, or places where your understanding slips. For technical software books, preview the chapter, code samples, headings, and examples first, then move between scanning, skimming, and full reading based on whether you need orientation, a specific answer, or deep understanding. For dense explanatory text, start with a clear purpose, map the structure, and deliberately slow for definitions, claims, and high-information passages while moving faster through transitions, repetition, and familiar material. The module also reinforces that good readers adjust pace continuously, use previewing to reduce zoning out and unnecessary rereading, and do not try to force away subvocalization at the expense of comprehension.",
+      "sections": [
+        {
+          "type": "video",
+          "title": "Preview | Previewing Text Strategies",
+          "description": "Short instructional video showing how to preview titles, headings, summaries, and text features so you can decide what to read carefully, skim, or skip before starting a long chapter or article.",
+          "url": "https://owl.excelsior.edu/orc/what-to-do-before-reading/previewing"
+        },
+        {
+          "type": "guide",
+          "title": "Skimming and Scanning - TIP Sheet",
+          "description": "Clear guide to when skimming is appropriate, when scanning is appropriate, and when to slow down for complicated or unfamiliar material instead of forcing one pace for every page.",
+          "url": "https://www.butte.edu/departments/cas/tipsheets/readingstrategies/skimming_scanning.html"
+        },
+        {
+          "type": "doc",
+          "title": "Reading Technical Documentation",
+          "description": "Practical doc for software readers that explains why tutorials and reference pages should be read differently, helping transfer the right pace and method to technical books and online docs.",
+          "url": "https://byui-cse.github.io/cse450-course/course/reading-technical-documentation.html"
+        },
+        {
+          "type": "tutorial",
+          "title": "How to Read Technical Books Effectively",
+          "description": "Concrete step-by-step tutorial for technical books: read the preface, scan, skim, then read fully, paying extra attention to code, terminology, and sections that deserve slower processing.",
+          "url": "https://recepinanc.com/How-to-read-technical-books-effectively/"
+        }
+      ],
+      "aditional-links": [
+        {
+          "type": "guide",
+          "title": "How to Actually Read Faster (Evidence-Based Approaches)",
+          "description": "Useful anti-hype companion piece that directly warns against forcing away subvocalization, recommends reducing unnecessary regressions, and emphasizes matching reading mode to purpose.",
+          "url": "https://readlite.in/concepts/how-to-read-faster/"
+        }
+      ]
+    },
+    {
+      "id": "thirty-plus-minute-practice-system",
+      "title": "30+ Minute Practice System",
+      "description": "A comprehension-first 30+ minute daily system: preview and set a purpose, read in focused blocks, use brief recall checks instead of reflexive rereading, add occasional timed practice, and review progress weekly with realistic benchmarks for fantasy, technical, and long-form reading on paper or screens.",
+      "sections": [
+        {
+          "type": "video",
+          "title": "Reading Assignments: Crash Course Study Skills #2",
+          "description": "A practical, anti-hype overview of reading efficiently: it warns against extreme speed-reading claims, addresses daydreaming and rereading, and introduces active-reading ideas like previewing and reciting that can be turned into daily reading blocks.",
+          "url": "https://www.youtube.com/watch?v=WAIUkjsZ5xQ"
+        },
+        {
+          "type": "guide",
+          "title": "Evidence-Based Techniques",
+          "description": "A concise guide to the habits that best support a 30+ minute routine: purpose-setting, previewing structure, chunking by phrase, and using comprehension checks to reduce unnecessary regressions without sacrificing understanding.",
+          "url": "https://speedreading.com/research/evidence-based-techniques.php"
+        },
+        {
+          "type": "doc",
+          "title": "The relationship between mind wandering and reading comprehension: A meta-analysis",
+          "description": "An open-access research review showing that mind wandering is reliably associated with worse reading comprehension, useful for grounding attention resets, shorter sections, and comprehension checks when zoning out is a recurring problem.",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9971160/"
+        },
+        {
+          "type": "tutorial",
+          "title": "How to Actually Read Faster (Evidence-Based Approaches)",
+          "description": "The clearest hands-on routine here: it gives a week-long starter plan with baseline testing, 30+ minute daily reading, strategic timed practice, vocabulary work, and monthly progress checks while explicitly rejecting unrealistic speed targets.",
+          "url": "https://readlite.in/concepts/how-to-read-faster/"
+        }
+      ],
+      "aditional-links": [
+        {
+          "type": "guide",
+          "title": "Should You Stop Subvocalizing? The Truth About Inner Speech",
+          "description": "A focused myth-buster for a key concern: it explains why trying to eliminate subvocalization usually hurts comprehension and recommends flexible management instead, especially for harder technical or syntax-heavy reading.",
+          "url": "https://readlite.in/concepts/stop-subvocalization-myth/"
+        }
+      ]
+    }
+  ]
+}

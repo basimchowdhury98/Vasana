@@ -1,0 +1,1388 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>How to Read Faster Without Losing Comprehension</title>
+    <meta name="description" content="A comprehension-first tutorial for intermediate readers who want to get faster across fantasy books, technical software books, and other long-form reading. It focuses on evidence-based reading mechanics, diagnosing bottlenecks, managing subvocalization, reducing zoning out and rereading, adapting by material type, and building a realistic 30+ minute practice system for both paper and screens." />
+    <style>
+      :root {
+        --bg: #f4efe6;
+        --paper: #fffaf1;
+        --paper-2: #f8f1e7;
+        --ink: #2f241a;
+        --muted: #746150;
+        --line: rgba(79, 63, 46, 0.14);
+        --accent: #b56a3c;
+        --accent-soft: #f0dccd;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(181, 106, 60, 0.08), transparent 28%),
+          linear-gradient(180deg, #efe7dc, #f6f0e8 40%, #f4efe6 100%);
+      }
+
+      .page {
+        max-width: 1220px;
+        margin: 0 auto;
+        padding: 18px;
+        display: grid;
+        grid-template-columns: 180px minmax(0, 1fr);
+        gap: 18px;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 18px;
+        align-self: start;
+        max-height: calc(100vh - 36px);
+        overflow: auto;
+        padding: 16px 14px;
+        border-radius: 20px;
+        background: rgba(255, 250, 241, 0.95);
+        border: 1px solid var(--line);
+        box-shadow: 0 18px 60px rgba(70, 44, 24, 0.08);
+      }
+
+      .resource-type {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 10px 0 8px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 34px;
+        line-height: 1.1;
+      }
+
+      h2 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 28px;
+        line-height: 1.15;
+      }
+
+      h3 {
+        line-height: 1.25;
+      }
+
+      p,
+      .module-description,
+      .resource-description,
+      .meta-copy,
+      .section-note,
+      .stat-label {
+        color: var(--muted);
+      }
+
+      .stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 16px 0 0;
+      }
+
+      .stat {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 6px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: var(--paper-2);
+        border: 1px solid var(--line);
+      }
+
+      .stat-value {
+        display: inline;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .toc-title {
+        margin: 0 0 12px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .nav-title {
+        margin: 0 0 10px;
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .module-links {
+        display: grid;
+        gap: 8px;
+      }
+
+      .module-link {
+        display: block;
+        padding: 9px 10px;
+        border-radius: 14px;
+        text-decoration: none;
+        color: inherit;
+        background: rgba(248, 241, 231, 0.82);
+        border: 1px solid var(--line);
+        transition: border-color 160ms ease, transform 160ms ease;
+      }
+
+      .module-link:hover {
+        border-color: rgba(181, 106, 60, 0.45);
+        transform: translateY(-1px);
+      }
+
+      .module-link-index {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 11px;
+        color: var(--accent);
+      }
+
+      .module-link-label {
+        display: block;
+        font-weight: 600;
+        font-size: 13px;
+        line-height: 1.25;
+      }
+
+      .content {
+        display: grid;
+        gap: 16px;
+      }
+
+      .hero {
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: rgba(255, 250, 241, 0.96);
+        box-shadow: 0 18px 60px rgba(70, 44, 24, 0.08);
+      }
+
+      .modules {
+        display: grid;
+        gap: 16px;
+      }
+
+      .module-card {
+        padding: 22px;
+        border-radius: 22px;
+        border: 1px solid var(--line);
+        background: rgba(255, 250, 241, 0.95);
+        box-shadow: 0 14px 42px rgba(70, 44, 24, 0.07);
+        scroll-margin-top: 18px;
+      }
+
+      .module-heading {
+        display: grid;
+        gap: 8px;
+      }
+
+      .module-number {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .resource-group {
+        margin-top: 18px;
+      }
+
+      .resource-group + .resource-group {
+        margin-top: 18px;
+      }
+
+      .resource-group-title {
+        margin: 0 0 10px;
+        font-size: 16px;
+      }
+
+      .resource-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .resource-card {
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: var(--paper-2);
+      }
+
+      .resource-card h3 {
+        margin: 8px 0 8px;
+        font-size: 18px;
+        font-family: Georgia, "Times New Roman", serif;
+      }
+
+      .resource-link {
+        color: var(--ink);
+        text-decoration: none;
+        transition: color 160ms ease;
+      }
+
+      .resource-link:hover {
+        color: var(--accent);
+      }
+
+      .resource-description {
+        margin: 0 0 12px;
+        font-size: 14px;
+      }
+
+      .resource-meta {
+        font-size: 13px;
+        opacity: 0.8;
+      }
+
+      .resource-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .note-trigger {
+        appearance: none;
+        border: 1px solid rgba(181, 106, 60, 0.28);
+        background: rgba(255, 250, 241, 0.92);
+        color: var(--ink);
+        border-radius: 999px;
+        padding: 7px 12px;
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        transition: border-color 160ms ease, background-color 160ms ease;
+      }
+
+      .note-trigger:hover {
+        border-color: rgba(181, 106, 60, 0.55);
+        background: #fff7ee;
+      }
+
+      .note-editor {
+        display: none;
+        gap: 10px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+      }
+
+      .note-editor.is-open {
+        display: grid;
+      }
+
+      .note-editor-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+
+      .note-editor-input {
+        width: 100%;
+        min-height: 200px;
+        resize: vertical;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+        font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        color: var(--ink);
+        background: rgba(255, 250, 241, 0.96);
+      }
+
+      .note-editor-input:focus {
+        outline: 2px solid rgba(181, 106, 60, 0.2);
+        border-color: rgba(181, 106, 60, 0.45);
+      }
+
+      .note-status {
+        font-size: 12px;
+        color: var(--muted);
+        min-height: 1.2em;
+      }
+
+      .extra-links {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .extra-link-item {
+        display: grid;
+        gap: 4px;
+        padding: 10px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .extra-link-item:first-child {
+        padding-top: 0;
+        border-top: 0;
+      }
+
+      .extra-link-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .extra-link-main {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        flex: 1;
+      }
+
+      .extra-link-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .extra-link-title {
+        min-width: 0;
+        font-weight: 600;
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .extra-link-title:hover {
+        color: var(--accent);
+      }
+
+      .extra-link-description {
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      @media (max-width: 980px) {
+        .page {
+          grid-template-columns: 160px minmax(0, 1fr);
+        }
+      }
+
+      @media (max-width: 760px) {
+        .page {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+          max-height: none;
+        }
+
+        .resource-actions,
+        .extra-link-row {
+          display: grid;
+        }
+
+        .extra-link-actions {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <aside class="sidebar">
+        <div class="toc-title">Contents</div>
+        
+    <div class="nav-title">Modules</div>
+    <nav class="module-links">
+      
+            <a class="module-link" href="#reading-speed-without-hype">
+              <span class="module-link-index">Module 01</span>
+              <span class="module-link-label">Reading Speed Without Hype</span>
+            </a>
+          
+            <a class="module-link" href="#diagnose-your-current-bottlenecks">
+              <span class="module-link-index">Module 02</span>
+              <span class="module-link-label">Diagnose Your Current Bottlenecks</span>
+            </a>
+          
+            <a class="module-link" href="#core-mechanics-pacing-eye-movement-and-subvocalization">
+              <span class="module-link-index">Module 03</span>
+              <span class="module-link-label">Core Mechanics: Pacing, Eye Movement, and Subvocalization</span>
+            </a>
+          
+            <a class="module-link" href="#fix-zoning-out-and-passive-reading">
+              <span class="module-link-index">Module 04</span>
+              <span class="module-link-label">Fix Zoning Out and Passive Reading</span>
+            </a>
+          
+            <a class="module-link" href="#adjust-by-material-type">
+              <span class="module-link-index">Module 05</span>
+              <span class="module-link-label">Adjust by Material Type</span>
+            </a>
+          
+            <a class="module-link" href="#thirty-plus-minute-practice-system">
+              <span class="module-link-index">Module 06</span>
+              <span class="module-link-label">30+ Minute Practice System</span>
+            </a>
+          
+    </nav>
+  
+      </aside>
+      <main class="content">
+        <section class="hero">
+          <h1>How to Read Faster Without Losing Comprehension</h1>
+          <p class="meta-copy">A comprehension-first tutorial for intermediate readers who want to get faster across fantasy books, technical software books, and other long-form reading. It focuses on evidence-based reading mechanics, diagnosing bottlenecks, managing subvocalization, reducing zoning out and rereading, adapting by material type, and building a realistic 30+ minute practice system for both paper and screens.</p>
+          
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-value">6</span>
+        <span class="stat-label">Modules</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">23</span>
+        <span class="stat-label">Core resources</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">9</span>
+        <span class="stat-label">Extra links</span>
+      </div>
+    </div>
+  
+        </section>
+        <div class="modules">
+          
+    <section class="module-card" id="reading-speed-without-hype">
+      <div class="module-heading">
+        <div class="module-number">Module 01</div>
+        <h2>Reading Speed Without Hype</h2>
+        <p class="module-description">A practical, evidence-based introduction to reading faster without chasing speed-reading myths. Focuses on the real speed/comprehension tradeoff, why eliminating subvocalization is too simplistic, when skimming helps, and how purpose, chunking, selective rereading, and better attention management improve pace without hollow comprehension.</p>
+      </div>
+      <div class="resource-group">
+        <h3 class="resource-group-title">Core path</h3>
+        <p class="section-note">Start here. These are the main resources intended to carry the lesson.</p>
+        <div class="resource-grid">
+          
+    <article class="resource-card">
+      <span class="resource-type">video</span>
+      <h3><a class="resource-link" href="https://www.youtube.com/watch?v=WAIUkjsZ5xQ" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="reading-speed-without-hype" data-module-title="Reading Speed Without Hype" data-resource-type="video" data-resource-title="Reading Assignments: Crash Course Study Skills #2" data-resource-url="https://www.youtube.com/watch?v=WAIUkjsZ5xQ">Reading Assignments: Crash Course Study Skills #2</a></h3>
+      <p class="resource-description">Accessible overview of how reading actually works, including eye movements, regressions, and why eliminating subvocalization is a misguided shortcut when comprehension matters.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod1_video.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod1_video.md" data-note-input="true" data-note-file="mod1_video.md" data-resource-title="Reading Assignments: Crash Course Study Skills #2" data-resource-url="https://www.youtube.com/watch?v=WAIUkjsZ5xQ" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">guide</span>
+      <h3><a class="resource-link" href="https://www.psychologicalscience.org/publications/speed_reading.html" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="reading-speed-without-hype" data-module-title="Reading Speed Without Hype" data-resource-type="guide" data-resource-title="So Much to Read, So Little Time: How Do We Read, and Can Speed Reading Help?" data-resource-url="https://www.psychologicalscience.org/publications/speed_reading.html">So Much to Read, So Little Time: How Do We Read, and Can Speed Reading Help?</a></h3>
+      <p class="resource-description">APS summary of the major research review on reading speed: strong on the real limits of speed reading, why RSVP and similar shortcuts hurt comprehension, and why practice and language skill matter more than hacks.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod1_guide.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod1_guide.md" data-note-input="true" data-note-file="mod1_guide.md" data-resource-title="So Much to Read, So Little Time: How Do We Read, and Can Speed Reading Help?" data-resource-url="https://www.psychologicalscience.org/publications/speed_reading.html" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">tutorial</span>
+      <h3><a class="resource-link" href="https://mcgraw.princeton.edu/strategic-approach-effective-and-efficient-reading" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="reading-speed-without-hype" data-module-title="Reading Speed Without Hype" data-resource-type="tutorial" data-resource-title="A Strategic Approach to Effective and Efficient Reading" data-resource-url="https://mcgraw.princeton.edu/strategic-approach-effective-and-efficient-reading">A Strategic Approach to Effective and Efficient Reading</a></h3>
+      <p class="resource-description">Princeton&#39;s practical framework for reading with purpose, surveying before reading, chunking sections, monitoring understanding, and using selective rereading instead of reflexive backtracking.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod1_tutorial.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod1_tutorial.md" data-note-input="true" data-note-file="mod1_tutorial.md" data-resource-title="A Strategic Approach to Effective and Efficient Reading" data-resource-url="https://mcgraw.princeton.edu/strategic-approach-effective-and-efficient-reading" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+        </div>
+      </div>
+      
+            <div class="resource-group">
+              <h3 class="resource-group-title">Additional links</h3>
+              <ul class="extra-links">
+                
+    <li class="extra-link-item">
+      <div class="extra-link-row">
+        <div class="extra-link-main">
+          <a class="extra-link-title" href="https://www.psychologicalscience.org/observer/speed-reading-promises-are-too-good-to-be-true-scientists-find-2" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="reading-speed-without-hype" data-module-title="Reading Speed Without Hype" data-resource-type="guide" data-resource-title="Speed Reading Promises Are Too Good to Be True, Scientists Find" data-resource-url="https://www.psychologicalscience.org/observer/speed-reading-promises-are-too-good-to-be-true-scientists-find-2">Speed Reading Promises Are Too Good to Be True, Scientists Find</a>
+        </div>
+        <div class="extra-link-actions">
+          <span class="resource-type">guide</span>
+          <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+        </div>
+      </div>
+      <p class="extra-link-description">Plain-language APS article summarizing the evidence that faster reading usually trades off with understanding, and that skimming is useful only when gist is the goal.</p>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod1_res1.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod1_res1.md" data-note-input="true" data-note-file="mod1_res1.md" data-resource-title="Speed Reading Promises Are Too Good to Be True, Scientists Find" data-resource-url="https://www.psychologicalscience.org/observer/speed-reading-promises-are-too-good-to-be-true-scientists-find-2" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </li>
+  
+    <li class="extra-link-item">
+      <div class="extra-link-row">
+        <div class="extra-link-main">
+          <a class="extra-link-title" href="https://success.oregonstate.edu/learning-corner/reading-writing/while-you-read" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="reading-speed-without-hype" data-module-title="Reading Speed Without Hype" data-resource-type="guide" data-resource-title="Tips to Try While You Read" data-resource-url="https://success.oregonstate.edu/learning-corner/reading-writing/while-you-read">Tips to Try While You Read</a>
+        </div>
+        <div class="extra-link-actions">
+          <span class="resource-type">guide</span>
+          <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+        </div>
+      </div>
+      <p class="extra-link-description">Oregon State&#39;s concise guide for staying engaged while reading: built-in comprehension checks, identifying sticking points, and taking breaks to reduce zoning out during long sessions.</p>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod1_res2.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod1_res2.md" data-note-input="true" data-note-file="mod1_res2.md" data-resource-title="Tips to Try While You Read" data-resource-url="https://success.oregonstate.edu/learning-corner/reading-writing/while-you-read" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </li>
+  
+              </ul>
+            </div>
+          
+    </section>
+  
+    <section class="module-card" id="diagnose-your-current-bottlenecks">
+      <div class="module-heading">
+        <div class="module-number">Module 02</div>
+        <h2>Diagnose Your Current Bottlenecks</h2>
+        <p class="module-description">Build an honest baseline before trying to read faster. This module shows you how to measure words per minute together with comprehension, notice where rereading and zoning out actually start, compare fatigue and focus across paper and screens, and track how fiction, technical text, and other long-form reading change your pace. It also frames subvocalization as something to observe and manage by task difficulty rather than a habit to forcefully eliminate.</p>
+      </div>
+      <div class="resource-group">
+        <h3 class="resource-group-title">Core path</h3>
+        <p class="section-note">Start here. These are the main resources intended to carry the lesson.</p>
+        <div class="resource-grid">
+          
+    <article class="resource-card">
+      <span class="resource-type">video</span>
+      <h3><a class="resource-link" href="https://www.youtube.com/watch?v=sAik_RQY_Dg" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="diagnose-your-current-bottlenecks" data-module-title="Diagnose Your Current Bottlenecks" data-resource-type="video" data-resource-title="Metacognition - A Brief Explainer" data-resource-url="https://www.youtube.com/watch?v=sAik_RQY_Dg">Metacognition - A Brief Explainer</a></h3>
+      <p class="resource-description">A short evidence-based introduction to planning, monitoring, and evaluating your own performance, useful for noticing when comprehension drops, attention drifts, or a reading approach is not working.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod2_video.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod2_video.md" data-note-input="true" data-note-file="mod2_video.md" data-resource-title="Metacognition - A Brief Explainer" data-resource-url="https://www.youtube.com/watch?v=sAik_RQY_Dg" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">guide</span>
+      <h3><a class="resource-link" href="https://learningcenter.unc.edu/tips-and-tools/reading-comprehension-tips/" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="diagnose-your-current-bottlenecks" data-module-title="Diagnose Your Current Bottlenecks" data-resource-type="guide" data-resource-title="Reading Comprehension Tips" data-resource-url="https://learningcenter.unc.edu/tips-and-tools/reading-comprehension-tips/">Reading Comprehension Tips</a></h3>
+      <p class="resource-description">A practical university guide for diagnosing reading problems in real sessions: set a purpose, break reading into manageable chunks, decide when screen reading is hurting, self-monitor mind wandering, and resume from the right point after attention slips.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod2_guide.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod2_guide.md" data-note-input="true" data-note-file="mod2_guide.md" data-resource-title="Reading Comprehension Tips" data-resource-url="https://learningcenter.unc.edu/tips-and-tools/reading-comprehension-tips/" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">doc</span>
+      <h3><a class="resource-link" href="https://commons.und.edu/ehb-fac/107/" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="diagnose-your-current-bottlenecks" data-module-title="Diagnose Your Current Bottlenecks" data-resource-type="doc" data-resource-title="Decoding Digital Reading: A Network Meta-analysis of Comprehension Across Devices" data-resource-url="https://commons.und.edu/ehb-fac/107/">Decoding Digital Reading: A Network Meta-analysis of Comprehension Across Devices</a></h3>
+      <p class="resource-description">An open-access research summary showing how comprehension differs across paper, tablets, e-readers, computers, and smartphones, with a key diagnostic takeaway that scrolling often hurts comprehension more than static layouts.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod2_doc.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod2_doc.md" data-note-input="true" data-note-file="mod2_doc.md" data-resource-title="Decoding Digital Reading: A Network Meta-analysis of Comprehension Across Devices" data-resource-url="https://commons.und.edu/ehb-fac/107/" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">tutorial</span>
+      <h3><a class="resource-link" href="https://readlite.in/reading-rituals/reading-speed-test" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="diagnose-your-current-bottlenecks" data-module-title="Diagnose Your Current Bottlenecks" data-resource-type="tutorial" data-resource-title="Set Your Baseline Speed" data-resource-url="https://readlite.in/reading-rituals/reading-speed-test">Set Your Baseline Speed</a></h3>
+      <p class="resource-description">A step-by-step self-assessment: choose representative text, time five minutes, calculate WPM, and score recall/comprehension. It works well as a repeatable baseline across fantasy, technical books, and general long-form reading on both paper and screens.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod2_tutorial.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod2_tutorial.md" data-note-input="true" data-note-file="mod2_tutorial.md" data-resource-title="Set Your Baseline Speed" data-resource-url="https://readlite.in/reading-rituals/reading-speed-test" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+        </div>
+      </div>
+      
+            <div class="resource-group">
+              <h3 class="resource-group-title">Additional links</h3>
+              <ul class="extra-links">
+                
+    <li class="extra-link-item">
+      <div class="extra-link-row">
+        <div class="extra-link-main">
+          <a class="extra-link-title" href="https://experts.umn.edu/en/publications/on-the-influence-of-re-reading-on-mind-wandering" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="diagnose-your-current-bottlenecks" data-module-title="Diagnose Your Current Bottlenecks" data-resource-type="doc" data-resource-title="On the Influence of Re-reading on Mind Wandering" data-resource-url="https://experts.umn.edu/en/publications/on-the-influence-of-re-reading-on-mind-wandering">On the Influence of Re-reading on Mind Wandering</a>
+        </div>
+        <div class="extra-link-actions">
+          <span class="resource-type">doc</span>
+          <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+        </div>
+      </div>
+      <p class="extra-link-description">Useful for diagnosing whether repeated rereading is actually helping; this research summary reports that rereading can increase mind wandering without improving comprehension.</p>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod2_res1.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod2_res1.md" data-note-input="true" data-note-file="mod2_res1.md" data-resource-title="On the Influence of Re-reading on Mind Wandering" data-resource-url="https://experts.umn.edu/en/publications/on-the-influence-of-re-reading-on-mind-wandering" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </li>
+  
+    <li class="extra-link-item">
+      <div class="extra-link-row">
+        <div class="extra-link-main">
+          <a class="extra-link-title" href="https://speedreading.com/research/controversies-and-claims.php" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="diagnose-your-current-bottlenecks" data-module-title="Diagnose Your Current Bottlenecks" data-resource-type="guide" data-resource-title="Speed Reading Myths &amp; Claims" data-resource-url="https://speedreading.com/research/controversies-and-claims.php">Speed Reading Myths &amp; Claims</a>
+        </div>
+        <div class="extra-link-actions">
+          <span class="resource-type">guide</span>
+          <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+        </div>
+      </div>
+      <p class="extra-link-description">A concise myth-check on extreme speed claims and subvocalization, helpful for keeping diagnosis realistic and comprehension-first.</p>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod2_res2.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod2_res2.md" data-note-input="true" data-note-file="mod2_res2.md" data-resource-title="Speed Reading Myths &amp; Claims" data-resource-url="https://speedreading.com/research/controversies-and-claims.php" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </li>
+  
+              </ul>
+            </div>
+          
+    </section>
+  
+    <section class="module-card" id="core-mechanics-pacing-eye-movement-and-subvocalization">
+      <div class="module-heading">
+        <div class="module-number">Module 03</div>
+        <h2>Core Mechanics: Pacing, Eye Movement, and Subvocalization</h2>
+        <p class="module-description">Learn the reading mechanics that actually matter for getting faster without giving up comprehension: how fixations, saccades, regressions, and perceptual span shape your pace; how a finger or pointer can reduce unnecessary backtracking and help with zoning out; how to read in slightly larger phrase-sized chunks instead of word-by-word; and how to manage subvocalization flexibly rather than trying to eliminate it. This module is aimed at practical gains for long-form books, technical reading, print, and screens.</p>
+      </div>
+      <div class="resource-group">
+        <h3 class="resource-group-title">Core path</h3>
+        <p class="section-note">Start here. These are the main resources intended to carry the lesson.</p>
+        <div class="resource-grid">
+          
+    <article class="resource-card">
+      <span class="resource-type">video</span>
+      <h3><a class="resource-link" href="https://www.youtube.com/watch?v=WAIUkjsZ5xQ" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="core-mechanics-pacing-eye-movement-and-subvocalization" data-module-title="Core Mechanics: Pacing, Eye Movement, and Subvocalization" data-resource-type="video" data-resource-title="Reading Assignments: Crash Course Study Skills #2" data-resource-url="https://www.youtube.com/watch?v=WAIUkjsZ5xQ">Reading Assignments: Crash Course Study Skills #2</a></h3>
+      <p class="resource-description">A balanced overview of reading mechanics that explains saccades, fixations, regressions, and why common speed-reading claims like eliminating subvocalization usually fail when comprehension matters.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod3_video.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod3_video.md" data-note-input="true" data-note-file="mod3_video.md" data-resource-title="Reading Assignments: Crash Course Study Skills #2" data-resource-url="https://www.youtube.com/watch?v=WAIUkjsZ5xQ" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">guide</span>
+      <h3><a class="resource-link" href="https://speedreading.com/research/eye-movements-visual-processing.php" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="core-mechanics-pacing-eye-movement-and-subvocalization" data-module-title="Core Mechanics: Pacing, Eye Movement, and Subvocalization" data-resource-type="guide" data-resource-title="Eye Movements &amp; Visual Processing" data-resource-url="https://speedreading.com/research/eye-movements-visual-processing.php">Eye Movements &amp; Visual Processing</a></h3>
+      <p class="resource-description">Clear guide to the core mechanics of reading: fixations, saccades, regressions, perceptual span, and parafoveal preview. Useful for understanding why phrase chunking and reducing unnecessary regressions help, but whole-line reading claims do not.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod3_guide.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod3_guide.md" data-note-input="true" data-note-file="mod3_guide.md" data-resource-title="Eye Movements &amp; Visual Processing" data-resource-url="https://speedreading.com/research/eye-movements-visual-processing.php" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">doc</span>
+      <h3><a class="resource-link" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3075059/" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="core-mechanics-pacing-eye-movement-and-subvocalization" data-module-title="Core Mechanics: Pacing, Eye Movement, and Subvocalization" data-resource-type="doc" data-resource-title="Eye movements, the perceptual span, and reading speed" data-resource-url="https://pmc.ncbi.nlm.nih.gov/articles/PMC3075059/">Eye movements, the perceptual span, and reading speed</a></h3>
+      <p class="resource-description">Peer-reviewed open-access paper showing the limits of perceptual span, differences between faster and slower readers, and why improving eye guidance works within real visual constraints rather than bypassing them.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod3_doc.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod3_doc.md" data-note-input="true" data-note-file="mod3_doc.md" data-resource-title="Eye movements, the perceptual span, and reading speed" data-resource-url="https://pmc.ncbi.nlm.nih.gov/articles/PMC3075059/" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">tutorial</span>
+      <h3><a class="resource-link" href="https://www.regent.edu/admin/stusrv/student_dev/online_workshops/speedreading/lesson6.cfm" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="core-mechanics-pacing-eye-movement-and-subvocalization" data-module-title="Core Mechanics: Pacing, Eye Movement, and Subvocalization" data-resource-type="tutorial" data-resource-title="Speedreading | Regent University" data-resource-url="https://www.regent.edu/admin/stusrv/student_dev/online_workshops/speedreading/lesson6.cfm">Speedreading | Regent University</a></h3>
+      <p class="resource-description">Free self-paced practice module with specific drills for pointer pacing (&#39;Sweep Method&#39;), phrase-group scanning (&#39;Hop Method&#39;), and reducing unconscious regressions while keeping comprehension in view.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod3_tutorial.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod3_tutorial.md" data-note-input="true" data-note-file="mod3_tutorial.md" data-resource-title="Speedreading | Regent University" data-resource-url="https://www.regent.edu/admin/stusrv/student_dev/online_workshops/speedreading/lesson6.cfm" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+        </div>
+      </div>
+      
+            <div class="resource-group">
+              <h3 class="resource-group-title">Additional links</h3>
+              <ul class="extra-links">
+                
+    <li class="extra-link-item">
+      <div class="extra-link-row">
+        <div class="extra-link-main">
+          <a class="extra-link-title" href="https://speedreading.com/research/controversies-and-claims.php" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="core-mechanics-pacing-eye-movement-and-subvocalization" data-module-title="Core Mechanics: Pacing, Eye Movement, and Subvocalization" data-resource-type="guide" data-resource-title="Controversies &amp; Common Claims" data-resource-url="https://speedreading.com/research/controversies-and-claims.php">Controversies &amp; Common Claims</a>
+        </div>
+        <div class="extra-link-actions">
+          <span class="resource-type">guide</span>
+          <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+        </div>
+      </div>
+      <p class="extra-link-description">Useful companion guide focused on myths and tradeoffs, especially the claim that you should eliminate subvocalization. Good for keeping expectations realistic for dense books and technical reading.</p>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod3_res1.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod3_res1.md" data-note-input="true" data-note-file="mod3_res1.md" data-resource-title="Controversies &amp; Common Claims" data-resource-url="https://speedreading.com/research/controversies-and-claims.php" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </li>
+  
+              </ul>
+            </div>
+          
+    </section>
+  
+    <section class="module-card" id="fix-zoning-out-and-passive-reading">
+      <div class="module-heading">
+        <div class="module-number">Module 04</div>
+        <h2>Fix Zoning Out and Passive Reading</h2>
+        <p class="module-description">Learn how to catch attention drift earlier, stay mentally engaged with long-form text, and reduce blank-page reading without sacrificing comprehension. This module focuses on practical ways to interrupt passive reading, use short recall checks, recover efficiently when you zone out, and avoid common myths such as treating subvocalization as the main problem.</p>
+      </div>
+      <div class="resource-group">
+        <h3 class="resource-group-title">Core path</h3>
+        <p class="section-note">Start here. These are the main resources intended to carry the lesson.</p>
+        <div class="resource-grid">
+          
+    <article class="resource-card">
+      <span class="resource-type">video</span>
+      <h3><a class="resource-link" href="https://www.youtube.com/watch?v=1QbtOSyE5C8" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="fix-zoning-out-and-passive-reading" data-module-title="Fix Zoning Out and Passive Reading" data-resource-type="video" data-resource-title="Oxford Study Skills: How to Read" data-resource-url="https://www.youtube.com/watch?v=1QbtOSyE5C8">Oxford Study Skills: How to Read</a></h3>
+      <p class="resource-description">A practical university study-skills video that frames reading as purposeful, question-driven work rather than passive page-turning, which fits readers trying to stay engaged with long books and dense nonfiction.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod4_video.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod4_video.md" data-note-input="true" data-note-file="mod4_video.md" data-resource-title="Oxford Study Skills: How to Read" data-resource-url="https://www.youtube.com/watch?v=1QbtOSyE5C8" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">guide</span>
+      <h3><a class="resource-link" href="https://readlite.in/concepts/mind-wandering-reading" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="fix-zoning-out-and-passive-reading" data-module-title="Fix Zoning Out and Passive Reading" data-resource-type="guide" data-resource-title="Mind-Wandering While Reading: Why It Happens and What to Do" data-resource-url="https://readlite.in/concepts/mind-wandering-reading">Mind-Wandering While Reading: Why It Happens and What to Do</a></h3>
+      <p class="resource-description">A focused guide to why readers zone out, how to recognize autopilot reading, and how to use comprehension checkpoints and active engagement to catch drift sooner and reread less.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod4_guide.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod4_guide.md" data-note-input="true" data-note-file="mod4_guide.md" data-resource-title="Mind-Wandering While Reading: Why It Happens and What to Do" data-resource-url="https://readlite.in/concepts/mind-wandering-reading" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">doc</span>
+      <h3><a class="resource-link" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9971160/" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="fix-zoning-out-and-passive-reading" data-module-title="Fix Zoning Out and Passive Reading" data-resource-type="doc" data-resource-title="The relationship between mind wandering and reading comprehension: A meta-analysis" data-resource-url="https://pmc.ncbi.nlm.nih.gov/articles/PMC9971160/">The relationship between mind wandering and reading comprehension: A meta-analysis</a></h3>
+      <p class="resource-description">Open-access research review showing that mind wandering is reliably linked to worse reading comprehension, giving an evidence base for attention-monitoring and anti-passive-reading strategies.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod4_doc.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod4_doc.md" data-note-input="true" data-note-file="mod4_doc.md" data-resource-title="The relationship between mind wandering and reading comprehension: A meta-analysis" data-resource-url="https://pmc.ncbi.nlm.nih.gov/articles/PMC9971160/" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">tutorial</span>
+      <h3><a class="resource-link" href="https://www.stmarys-ca.edu/academics/student-success/tutorial-academic-skills-center/reading-strategies" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="fix-zoning-out-and-passive-reading" data-module-title="Fix Zoning Out and Passive Reading" data-resource-type="tutorial" data-resource-title="Reading Strategies" data-resource-url="https://www.stmarys-ca.edu/academics/student-success/tutorial-academic-skills-center/reading-strategies">Reading Strategies</a></h3>
+      <p class="resource-description">A step-by-step tutorial on chunking reading, turning headings into questions, checking concentration, recalling after sections, and using SQ3R-style active reading to reduce zoning out and unnecessary rereading.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod4_tutorial.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod4_tutorial.md" data-note-input="true" data-note-file="mod4_tutorial.md" data-resource-title="Reading Strategies" data-resource-url="https://www.stmarys-ca.edu/academics/student-success/tutorial-academic-skills-center/reading-strategies" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+        </div>
+      </div>
+      
+            <div class="resource-group">
+              <h3 class="resource-group-title">Additional links</h3>
+              <ul class="extra-links">
+                
+    <li class="extra-link-item">
+      <div class="extra-link-row">
+        <div class="extra-link-main">
+          <a class="extra-link-title" href="https://speedreading.com/research/controversies-and-claims.php" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="fix-zoning-out-and-passive-reading" data-module-title="Fix Zoning Out and Passive Reading" data-resource-type="guide" data-resource-title="Speed Reading Myths &amp; Claims" data-resource-url="https://speedreading.com/research/controversies-and-claims.php">Speed Reading Myths &amp; Claims</a>
+        </div>
+        <div class="extra-link-actions">
+          <span class="resource-type">guide</span>
+          <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+        </div>
+      </div>
+      <p class="extra-link-description">Useful myth-correction on subvocalization: it argues against trying to eliminate inner speech and instead emphasizes matching reading style to comprehension demands.</p>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod4_res1.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod4_res1.md" data-note-input="true" data-note-file="mod4_res1.md" data-resource-title="Speed Reading Myths &amp; Claims" data-resource-url="https://speedreading.com/research/controversies-and-claims.php" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </li>
+  
+    <li class="extra-link-item">
+      <div class="extra-link-row">
+        <div class="extra-link-main">
+          <a class="extra-link-title" href="https://ncbi.nlm.nih.gov/pmc/articles/PMC3842750/" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="fix-zoning-out-and-passive-reading" data-module-title="Fix Zoning Out and Passive Reading" data-resource-type="doc" data-resource-title="The way we encounter reading material influences how frequently we mind wander" data-resource-url="https://ncbi.nlm.nih.gov/pmc/articles/PMC3842750/">The way we encounter reading material influences how frequently we mind wander</a>
+        </div>
+        <div class="extra-link-actions">
+          <span class="resource-type">doc</span>
+          <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+        </div>
+      </div>
+      <p class="extra-link-description">Open-access study showing that reading aloud reduced mind wandering compared with silent reading and listening, which makes it a useful fallback tactic when attention keeps slipping.</p>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod4_res2.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod4_res2.md" data-note-input="true" data-note-file="mod4_res2.md" data-resource-title="The way we encounter reading material influences how frequently we mind wander" data-resource-url="https://ncbi.nlm.nih.gov/pmc/articles/PMC3842750/" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </li>
+  
+              </ul>
+            </div>
+          
+    </section>
+  
+    <section class="module-card" id="adjust-by-material-type">
+      <div class="module-heading">
+        <div class="module-number">Module 05</div>
+        <h2>Adjust by Material Type</h2>
+        <p class="module-description">Learn an adaptive reading system instead of one fixed speed. For fantasy and other immersive fiction, read mostly at a steady flow pace and slow down only for unfamiliar worldbuilding, emotionally important scenes, or places where your understanding slips. For technical software books, preview the chapter, code samples, headings, and examples first, then move between scanning, skimming, and full reading based on whether you need orientation, a specific answer, or deep understanding. For dense explanatory text, start with a clear purpose, map the structure, and deliberately slow for definitions, claims, and high-information passages while moving faster through transitions, repetition, and familiar material. The module also reinforces that good readers adjust pace continuously, use previewing to reduce zoning out and unnecessary rereading, and do not try to force away subvocalization at the expense of comprehension.</p>
+      </div>
+      <div class="resource-group">
+        <h3 class="resource-group-title">Core path</h3>
+        <p class="section-note">Start here. These are the main resources intended to carry the lesson.</p>
+        <div class="resource-grid">
+          
+    <article class="resource-card">
+      <span class="resource-type">video</span>
+      <h3><a class="resource-link" href="https://owl.excelsior.edu/orc/what-to-do-before-reading/previewing" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="adjust-by-material-type" data-module-title="Adjust by Material Type" data-resource-type="video" data-resource-title="Preview | Previewing Text Strategies" data-resource-url="https://owl.excelsior.edu/orc/what-to-do-before-reading/previewing">Preview | Previewing Text Strategies</a></h3>
+      <p class="resource-description">Short instructional video showing how to preview titles, headings, summaries, and text features so you can decide what to read carefully, skim, or skip before starting a long chapter or article.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod5_video.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod5_video.md" data-note-input="true" data-note-file="mod5_video.md" data-resource-title="Preview | Previewing Text Strategies" data-resource-url="https://owl.excelsior.edu/orc/what-to-do-before-reading/previewing" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">guide</span>
+      <h3><a class="resource-link" href="https://www.butte.edu/departments/cas/tipsheets/readingstrategies/skimming_scanning.html" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="adjust-by-material-type" data-module-title="Adjust by Material Type" data-resource-type="guide" data-resource-title="Skimming and Scanning - TIP Sheet" data-resource-url="https://www.butte.edu/departments/cas/tipsheets/readingstrategies/skimming_scanning.html">Skimming and Scanning - TIP Sheet</a></h3>
+      <p class="resource-description">Clear guide to when skimming is appropriate, when scanning is appropriate, and when to slow down for complicated or unfamiliar material instead of forcing one pace for every page.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod5_guide.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod5_guide.md" data-note-input="true" data-note-file="mod5_guide.md" data-resource-title="Skimming and Scanning - TIP Sheet" data-resource-url="https://www.butte.edu/departments/cas/tipsheets/readingstrategies/skimming_scanning.html" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">doc</span>
+      <h3><a class="resource-link" href="https://byui-cse.github.io/cse450-course/course/reading-technical-documentation.html" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="adjust-by-material-type" data-module-title="Adjust by Material Type" data-resource-type="doc" data-resource-title="Reading Technical Documentation" data-resource-url="https://byui-cse.github.io/cse450-course/course/reading-technical-documentation.html">Reading Technical Documentation</a></h3>
+      <p class="resource-description">Practical doc for software readers that explains why tutorials and reference pages should be read differently, helping transfer the right pace and method to technical books and online docs.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod5_doc.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod5_doc.md" data-note-input="true" data-note-file="mod5_doc.md" data-resource-title="Reading Technical Documentation" data-resource-url="https://byui-cse.github.io/cse450-course/course/reading-technical-documentation.html" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">tutorial</span>
+      <h3><a class="resource-link" href="https://recepinanc.com/How-to-read-technical-books-effectively/" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="adjust-by-material-type" data-module-title="Adjust by Material Type" data-resource-type="tutorial" data-resource-title="How to Read Technical Books Effectively" data-resource-url="https://recepinanc.com/How-to-read-technical-books-effectively/">How to Read Technical Books Effectively</a></h3>
+      <p class="resource-description">Concrete step-by-step tutorial for technical books: read the preface, scan, skim, then read fully, paying extra attention to code, terminology, and sections that deserve slower processing.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod5_tutorial.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod5_tutorial.md" data-note-input="true" data-note-file="mod5_tutorial.md" data-resource-title="How to Read Technical Books Effectively" data-resource-url="https://recepinanc.com/How-to-read-technical-books-effectively/" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+        </div>
+      </div>
+      
+            <div class="resource-group">
+              <h3 class="resource-group-title">Additional links</h3>
+              <ul class="extra-links">
+                
+    <li class="extra-link-item">
+      <div class="extra-link-row">
+        <div class="extra-link-main">
+          <a class="extra-link-title" href="https://readlite.in/concepts/how-to-read-faster/" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="adjust-by-material-type" data-module-title="Adjust by Material Type" data-resource-type="guide" data-resource-title="How to Actually Read Faster (Evidence-Based Approaches)" data-resource-url="https://readlite.in/concepts/how-to-read-faster/">How to Actually Read Faster (Evidence-Based Approaches)</a>
+        </div>
+        <div class="extra-link-actions">
+          <span class="resource-type">guide</span>
+          <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+        </div>
+      </div>
+      <p class="extra-link-description">Useful anti-hype companion piece that directly warns against forcing away subvocalization, recommends reducing unnecessary regressions, and emphasizes matching reading mode to purpose.</p>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod5_res1.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod5_res1.md" data-note-input="true" data-note-file="mod5_res1.md" data-resource-title="How to Actually Read Faster (Evidence-Based Approaches)" data-resource-url="https://readlite.in/concepts/how-to-read-faster/" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </li>
+  
+              </ul>
+            </div>
+          
+    </section>
+  
+    <section class="module-card" id="thirty-plus-minute-practice-system">
+      <div class="module-heading">
+        <div class="module-number">Module 06</div>
+        <h2>30+ Minute Practice System</h2>
+        <p class="module-description">A comprehension-first 30+ minute daily system: preview and set a purpose, read in focused blocks, use brief recall checks instead of reflexive rereading, add occasional timed practice, and review progress weekly with realistic benchmarks for fantasy, technical, and long-form reading on paper or screens.</p>
+      </div>
+      <div class="resource-group">
+        <h3 class="resource-group-title">Core path</h3>
+        <p class="section-note">Start here. These are the main resources intended to carry the lesson.</p>
+        <div class="resource-grid">
+          
+    <article class="resource-card">
+      <span class="resource-type">video</span>
+      <h3><a class="resource-link" href="https://www.youtube.com/watch?v=WAIUkjsZ5xQ" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="thirty-plus-minute-practice-system" data-module-title="30+ Minute Practice System" data-resource-type="video" data-resource-title="Reading Assignments: Crash Course Study Skills #2" data-resource-url="https://www.youtube.com/watch?v=WAIUkjsZ5xQ">Reading Assignments: Crash Course Study Skills #2</a></h3>
+      <p class="resource-description">A practical, anti-hype overview of reading efficiently: it warns against extreme speed-reading claims, addresses daydreaming and rereading, and introduces active-reading ideas like previewing and reciting that can be turned into daily reading blocks.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod6_video.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod6_video.md" data-note-input="true" data-note-file="mod6_video.md" data-resource-title="Reading Assignments: Crash Course Study Skills #2" data-resource-url="https://www.youtube.com/watch?v=WAIUkjsZ5xQ" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">guide</span>
+      <h3><a class="resource-link" href="https://speedreading.com/research/evidence-based-techniques.php" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="thirty-plus-minute-practice-system" data-module-title="30+ Minute Practice System" data-resource-type="guide" data-resource-title="Evidence-Based Techniques" data-resource-url="https://speedreading.com/research/evidence-based-techniques.php">Evidence-Based Techniques</a></h3>
+      <p class="resource-description">A concise guide to the habits that best support a 30+ minute routine: purpose-setting, previewing structure, chunking by phrase, and using comprehension checks to reduce unnecessary regressions without sacrificing understanding.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod6_guide.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod6_guide.md" data-note-input="true" data-note-file="mod6_guide.md" data-resource-title="Evidence-Based Techniques" data-resource-url="https://speedreading.com/research/evidence-based-techniques.php" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">doc</span>
+      <h3><a class="resource-link" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9971160/" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="thirty-plus-minute-practice-system" data-module-title="30+ Minute Practice System" data-resource-type="doc" data-resource-title="The relationship between mind wandering and reading comprehension: A meta-analysis" data-resource-url="https://pmc.ncbi.nlm.nih.gov/articles/PMC9971160/">The relationship between mind wandering and reading comprehension: A meta-analysis</a></h3>
+      <p class="resource-description">An open-access research review showing that mind wandering is reliably associated with worse reading comprehension, useful for grounding attention resets, shorter sections, and comprehension checks when zoning out is a recurring problem.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod6_doc.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod6_doc.md" data-note-input="true" data-note-file="mod6_doc.md" data-resource-title="The relationship between mind wandering and reading comprehension: A meta-analysis" data-resource-url="https://pmc.ncbi.nlm.nih.gov/articles/PMC9971160/" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+    <article class="resource-card">
+      <span class="resource-type">tutorial</span>
+      <h3><a class="resource-link" href="https://readlite.in/concepts/how-to-read-faster/" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="thirty-plus-minute-practice-system" data-module-title="30+ Minute Practice System" data-resource-type="tutorial" data-resource-title="How to Actually Read Faster (Evidence-Based Approaches)" data-resource-url="https://readlite.in/concepts/how-to-read-faster/">How to Actually Read Faster (Evidence-Based Approaches)</a></h3>
+      <p class="resource-description">The clearest hands-on routine here: it gives a week-long starter plan with baseline testing, 30+ minute daily reading, strategic timed practice, vocabulary work, and monthly progress checks while explicitly rejecting unrealistic speed targets.</p>
+      <div class="resource-actions">
+        <div class="resource-meta">Primary learning path</div>
+        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+      </div>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod6_tutorial.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod6_tutorial.md" data-note-input="true" data-note-file="mod6_tutorial.md" data-resource-title="How to Actually Read Faster (Evidence-Based Approaches)" data-resource-url="https://readlite.in/concepts/how-to-read-faster/" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </article>
+  
+        </div>
+      </div>
+      
+            <div class="resource-group">
+              <h3 class="resource-group-title">Additional links</h3>
+              <ul class="extra-links">
+                
+    <li class="extra-link-item">
+      <div class="extra-link-row">
+        <div class="extra-link-main">
+          <a class="extra-link-title" href="https://readlite.in/concepts/stop-subvocalization-myth/" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="thirty-plus-minute-practice-system" data-module-title="30+ Minute Practice System" data-resource-type="guide" data-resource-title="Should You Stop Subvocalizing? The Truth About Inner Speech" data-resource-url="https://readlite.in/concepts/stop-subvocalization-myth/">Should You Stop Subvocalizing? The Truth About Inner Speech</a>
+        </div>
+        <div class="extra-link-actions">
+          <span class="resource-type">guide</span>
+          <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+        </div>
+      </div>
+      <p class="extra-link-description">A focused myth-buster for a key concern: it explains why trying to eliminate subvocalization usually hurts comprehension and recommends flexible management instead, especially for harder technical or syntax-heavy reading.</p>
+      
+    <div class="note-editor">
+      <label class="note-editor-label" for="mod6_res1.md">Markdown notes</label>
+      <textarea class="note-editor-input" id="mod6_res1.md" data-note-input="true" data-note-file="mod6_res1.md" data-resource-title="Should You Stop Subvocalizing? The Truth About Inner Speech" data-resource-url="https://readlite.in/concepts/stop-subvocalization-myth/" data-loaded="false"></textarea>
+      <div class="note-status" data-note-status="true"></div>
+    </div>
+  
+    </li>
+  
+              </ul>
+            </div>
+          
+    </section>
+  
+        </div>
+      </main>
+    </div>
+    <script>
+      const noteEditorState = new WeakMap();
+
+      document.addEventListener("click", (event) => {
+        const noteButton = event.target.closest("button[data-note-trigger]");
+        if (noteButton) {
+          toggleNoteEditor(noteButton);
+          return;
+        }
+
+        const link = event.target.closest("a[data-track-resource]");
+        if (!link) {
+          return;
+        }
+
+        const payload = {
+          moduleId: link.dataset.moduleId,
+          moduleTitle: link.dataset.moduleTitle,
+          resourceType: link.dataset.resourceType,
+          resourceTitle: link.dataset.resourceTitle,
+          resourceUrl: link.dataset.resourceUrl,
+        };
+
+        fetch("/api/link-context", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(payload),
+          keepalive: true,
+        }).catch(() => {
+          // The site should still open the resource even if the local relay is unavailable.
+        });
+      });
+
+      document.addEventListener("input", (event) => {
+        const input = event.target.closest("textarea[data-note-input]");
+        if (!input) {
+          return;
+        }
+
+        queueNoteSave(input);
+      });
+
+      document.addEventListener("keydown", (event) => {
+        const input = event.target.closest("textarea[data-note-input]");
+        if (!input || event.key !== "Enter" || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) {
+          return;
+        }
+
+        continueMarkdownList(input, event);
+      });
+
+      async function toggleNoteEditor(button) {
+        const resourceContainer = button.closest(".resource-card, .extra-link-item");
+        const editor = resourceContainer?.querySelector(".note-editor");
+        if (!editor) {
+          return;
+        }
+
+        const isOpen = editor.classList.toggle("is-open");
+        button.textContent = isOpen ? "Hide notes" : "Take notes";
+
+        if (!isOpen) {
+          return;
+        }
+
+        const input = editor.querySelector("textarea[data-note-input]");
+        const status = editor.querySelector("[data-note-status]");
+
+        if (!input || input.dataset.loaded === "true") {
+          input?.focus();
+          return;
+        }
+
+        setNoteStatus(status, "Loading...");
+
+        try {
+          const params = new URLSearchParams({
+            file: input.dataset.noteFile,
+            resourceTitle: input.dataset.resourceTitle,
+            resourceUrl: input.dataset.resourceUrl,
+          });
+          const response = await fetch("/api/notes?" + params.toString());
+          if (!response.ok) {
+            throw new Error("Could not load note.");
+          }
+
+          const payload = await response.json();
+          input.value = payload.body;
+          input.dataset.template = payload.template;
+          input.dataset.loaded = "true";
+          setNoteStatus(status, payload.exists ? "Loaded saved notes." : "Autosaves after you start writing.");
+          input.focus();
+        } catch {
+          setNoteStatus(status, "Could not load notes.");
+        }
+      }
+
+      function queueNoteSave(input) {
+        let state = noteEditorState.get(input);
+        if (!state) {
+          state = { timer: null, saving: false };
+          noteEditorState.set(input, state);
+        }
+
+        const editor = input.closest(".note-editor");
+        const status = editor?.querySelector("[data-note-status]");
+        setNoteStatus(status, "Saving...");
+
+        if (state.timer) {
+          clearTimeout(state.timer);
+        }
+
+        state.timer = setTimeout(() => {
+          saveNote(input, status, state);
+        }, 700);
+      }
+
+      async function saveNote(input, status, state) {
+        if (state.saving) {
+          return;
+        }
+
+        state.saving = true;
+
+        try {
+          const response = await fetch("/api/notes", {
+            method: "PUT",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({
+              fileName: input.dataset.noteFile,
+              body: input.value,
+              resourceTitle: input.dataset.resourceTitle,
+              resourceUrl: input.dataset.resourceUrl,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Save failed.");
+          }
+
+          const payload = await response.json();
+          input.dataset.loaded = "true";
+          setNoteStatus(status, payload.saved ? "Saved." : "No notes yet. File not created.");
+        } catch {
+          setNoteStatus(status, "Save failed.");
+        } finally {
+          state.saving = false;
+        }
+      }
+
+      function setNoteStatus(element, text) {
+        if (element) {
+          element.textContent = text;
+        }
+      }
+
+      function continueMarkdownList(input, event) {
+        const selectionStart = input.selectionStart;
+        const selectionEnd = input.selectionEnd;
+        const lineStart = input.value.lastIndexOf("\n", selectionStart - 1) + 1;
+        const lineEnd = input.value.indexOf("\n", selectionEnd);
+        const currentLine = input.value.slice(lineStart, lineEnd === -1 ? input.value.length : lineEnd);
+
+        const unorderedMatch = currentLine.match(/^(\s*)([-*])\s+(.*)$/);
+        if (unorderedMatch) {
+          event.preventDefault();
+          const [, indent, marker, text] = unorderedMatch;
+          const insertion = text.trim() === "" ? "\n" : "\n" + indent + marker + " ";
+          insertAtSelection(input, insertion);
+          queueNoteSave(input);
+          return;
+        }
+
+        const orderedMatch = currentLine.match(/^(\s*)(\d+)\.\s+(.*)$/);
+        if (!orderedMatch) {
+          return;
+        }
+
+        event.preventDefault();
+        const [, indent, number, text] = orderedMatch;
+        const insertion = text.trim() === "" ? "\n" : "\n" + indent + String(Number(number) + 1) + ". ";
+        insertAtSelection(input, insertion);
+        queueNoteSave(input);
+      }
+
+      function insertAtSelection(input, text) {
+        const selectionStart = input.selectionStart;
+        const selectionEnd = input.selectionEnd;
+        input.setRangeText(text, selectionStart, selectionEnd, "end");
+      }
+    </script>
+  </body>
+</html>

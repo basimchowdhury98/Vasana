@@ -1,0 +1,141 @@
+{
+  "id": "crypto-tutorial",
+  "title": "Crypto Tutorial",
+  "description": "A beginner-friendly tutorial covering hashing, symmetric encryption, and asymmetric encryption.",
+  "modules": [
+    {
+      "id": "hashing",
+      "title": "Hashing",
+      "description": "Learn what cryptographic hashes are, why they are one-way, and how they are used for integrity checks, password storage, and fingerprints of data.",
+      "sections": [
+        {
+          "type": "video",
+          "title": "Hashing Algorithms and Security",
+          "description": "A concise video introduction to cryptographic hashing, collisions, and the security properties that make hash functions useful.",
+          "url": "https://www.youtube.com/watch?v=b4b8ktEV4Bg"
+        },
+        {
+          "type": "guide",
+          "title": "Hashing Algorithm Overview: Types, Methodologies & Usage",
+          "description": "A beginner-friendly written guide explaining what hashing is, how hashing algorithms work, and where they are used in practice.",
+          "url": "https://www.okta.com/identity-101/hashing-algorithms/"
+        },
+        {
+          "type": "doc",
+          "title": "hashlib - Secure hashes and message digests",
+          "description": "Official documentation for common hashing algorithms and a practical API for computing secure message digests.",
+          "url": "https://docs.python.org/3/library/hashlib.html"
+        },
+        {
+          "type": "tutorial",
+          "title": "Cryptographic Hash Functions",
+          "description": "A hands-on tutorial showing how cryptographic hash functions work, with concrete examples and code snippets.",
+          "url": "https://cryptobook.nakov.com/cryptographic-hash-functions"
+        }
+      ],
+      "aditional-links": [
+        {
+          "type": "video",
+          "title": "Hashing Algorithms and Security",
+          "description": "A concise video introduction to cryptographic hashing, collisions, and the security properties that make hash functions useful.",
+          "url": "https://www.youtube.com/watch?v=b4b8ktEV4Bg"
+        },
+        {
+          "type": "doc",
+          "title": "hashlib - Secure hashes and message digests",
+          "description": "Official documentation for common hashing algorithms and a practical API for computing secure message digests.",
+          "url": "https://docs.python.org/3/library/hashlib.html"
+        },
+        {
+          "type": "tutorial",
+          "title": "Cryptographic Hash Functions",
+          "description": "A hands-on tutorial showing how cryptographic hash functions work, with concrete examples and code snippets.",
+          "url": "https://cryptobook.nakov.com/cryptographic-hash-functions"
+        }
+      ]
+    },
+    {
+      "id": "symmetric-encryption",
+      "title": "Symmetric Encryption",
+      "description": "Learn how one shared secret key is used to encrypt and decrypt data, and why symmetric encryption is fast and widely used.",
+      "sections": [
+        {
+          "type": "video",
+          "title": "What is Symmetric Encryption? Simply Explained",
+          "description": "A short explainer video covering the core idea of shared-key encryption and when it is typically used.",
+          "url": "https://www.youtube.com/watch?v=Wh9iC6uMv9s"
+        },
+        {
+          "type": "guide",
+          "title": "What is Symmetric Encryption?",
+          "description": "A clear written overview of symmetric encryption, how it works, and how it compares with asymmetric encryption.",
+          "url": "https://www.ibm.com/think/topics/symmetric-encryption"
+        },
+        {
+          "type": "doc",
+          "title": "Fernet (symmetric encryption)",
+          "description": "Official documentation for a practical symmetric authenticated-encryption API built on standard cryptographic primitives.",
+          "url": "https://cryptography.io/en/latest/fernet/"
+        },
+        {
+          "type": "tutorial",
+          "title": "AES Encrypt / Decrypt - Examples",
+          "description": "A practical tutorial with code examples for AES encryption and decryption, including modern authenticated modes.",
+          "url": "https://cryptobook.nakov.com/symmetric-key-ciphers/aes-encrypt-decrypt-examples"
+        }
+      ],
+      "aditional-links": [
+        {
+          "type": "video",
+          "title": "What is Symmetric Encryption? Simply Explained",
+          "description": "A short explainer video covering the core idea of shared-key encryption and when it is typically used.",
+          "url": "https://www.youtube.com/watch?v=Wh9iC6uMv9s"
+        },
+        {
+          "type": "guide",
+          "title": "What is Symmetric Encryption?",
+          "description": "A clear written overview of symmetric encryption, how it works, and how it compares with asymmetric encryption.",
+          "url": "https://www.ibm.com/think/topics/symmetric-encryption"
+        },
+        {
+          "type": "tutorial",
+          "title": "AES Encrypt / Decrypt - Examples",
+          "description": "A practical tutorial with code examples for AES encryption and decryption, including modern authenticated modes.",
+          "url": "https://cryptobook.nakov.com/symmetric-key-ciphers/aes-encrypt-decrypt-examples"
+        }
+      ]
+    },
+    {
+      "id": "asymmetric-encryption",
+      "title": "Asymmetric Encryption",
+      "description": "Understand public/private key pairs, how public-key encryption works, and why it is used for key exchange, encryption, and signatures.",
+      "sections": [
+        {
+          "type": "video",
+          "title": "Public Key Cryptography",
+          "description": "A straightforward video explanation of the main idea behind public-key cryptography and asymmetric encryption.",
+          "url": "https://www.youtube.com/watch?v=GSIDS_lvRv4"
+        },
+        {
+          "type": "guide",
+          "title": "What is Asymmetric Encryption?",
+          "description": "A practical overview of public/private keys, digital signatures, key exchange, and common real-world uses.",
+          "url": "https://www.ibm.com/think/topics/asymmetric-encryption"
+        },
+        {
+          "type": "doc",
+          "title": "RSA",
+          "description": "Official documentation for RSA key generation, encryption, decryption, signing, and verification.",
+          "url": "https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/"
+        },
+        {
+          "type": "tutorial",
+          "title": "RSA Encrypt / Decrypt - Examples",
+          "description": "A hands-on tutorial showing RSA key generation and RSA-OAEP encryption and decryption with working examples.",
+          "url": "https://cryptobook.nakov.com/asymmetric-key-ciphers/rsa-encrypt-decrypt-examples"
+        }
+      ],
+      "aditional-links": []
+    }
+  ]
+}
