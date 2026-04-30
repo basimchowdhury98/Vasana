@@ -7,6 +7,7 @@ const { spawn } = require("node:child_process");
 const { runTutorialApp } = require("./tutor-runtime");
 
 const ROOT_DIR = __dirname;
+const PROJECT_DIR = ROOT_DIR;
 const TUTORIALS_DIR = path.join(ROOT_DIR, "tutorials");
 const TUTOR_INSTRUCTION_PATH = path.join(ROOT_DIR, "tutor_instruction.md");
 const TUTORIAL_ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
@@ -21,8 +22,17 @@ async function main() {
     return;
   }
 
+  if (positionals[0] === "vibe") {
+    if (positionals.length > 1) {
+      throw new Error("Run `tutor vibe` with no additional positional arguments.");
+    }
+
+    await startVibeSession();
+    return;
+  }
+
   if (positionals.length > 0) {
-    throw new Error("Run `tutor` with no positional arguments, then choose or create a tutorial id in the prompt.");
+    throw new Error("Run `tutor` with no positional arguments, or use `tutor vibe`.");
   }
 
   const selection = await promptForTutorialID();
@@ -130,26 +140,45 @@ async function confirm(rl, message, defaultYes) {
 async function startAuthoringSession(tutorialID, tutorialDir) {
   await fs.mkdir(path.join(tutorialDir, "notes"), { recursive: true });
   const prompt = await buildAuthoringPrompt({ tutorialID, tutorialDir });
+  const exitCode = await runOpencodeSession({
+    workingDir: tutorialDir,
+    args: [tutorialDir, "--prompt", prompt],
+    sessionLabel: "authoring",
+  });
 
-  const exitCode = await new Promise((resolve, reject) => {
-    const child = spawn("opencode", [tutorialDir, "--prompt", prompt], {
-      cwd: tutorialDir,
+  if (exitCode !== 0) {
+    throw new Error(`OpenCode authoring session exited with code ${exitCode}.`);
+  }
+}
+
+async function startVibeSession() {
+  const exitCode = await runOpencodeSession({
+    workingDir: PROJECT_DIR,
+    args: [PROJECT_DIR],
+    sessionLabel: "vibe",
+  });
+
+  if (exitCode !== 0) {
+    throw new Error(`OpenCode vibe session exited with code ${exitCode}.`);
+  }
+}
+
+async function runOpencodeSession({ workingDir, args, sessionLabel }) {
+  return new Promise((resolve, reject) => {
+    const child = spawn("opencode", args, {
+      cwd: workingDir,
       stdio: "inherit",
     });
 
     child.once("error", reject);
     child.once("exit", (code, signal) => {
       if (signal) {
-        reject(new Error(`OpenCode authoring session exited from signal ${signal}.`));
+        reject(new Error(`OpenCode ${sessionLabel} session exited from signal ${signal}.`));
         return;
       }
       resolve(code ?? 0);
     });
   });
-
-  if (exitCode !== 0) {
-    throw new Error(`OpenCode authoring session exited with code ${exitCode}.`);
-  }
 }
 
 async function listTutorials() {
@@ -200,7 +229,8 @@ async function buildAuthoringPrompt({ tutorialID, tutorialDir }) {
 function printUsage() {
   process.stdout.write(
     "Usage:\n" +
-      "  tutor [--no-browser] [--no-attach]\n"
+      "  tutor [--no-browser] [--no-attach]\n" +
+      "  tutor vibe\n"
   );
 }
 
