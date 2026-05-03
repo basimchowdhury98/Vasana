@@ -3,14 +3,18 @@
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const readline = require("node:readline/promises");
-const { spawn } = require("node:child_process");
+const { spawn, spawnSync } = require("node:child_process");
 const { runTutorialApp } = require("./tutor-runtime");
 
 const ROOT_DIR = __dirname;
 const PROJECT_DIR = ROOT_DIR;
 const TUTORIALS_DIR = path.join(ROOT_DIR, "tutorials");
-const TUTOR_INSTRUCTION_PATH = path.join(ROOT_DIR, "tutor_instruction.md");
+const OUTLINE_INSTRUCTION_PATH = path.join(ROOT_DIR, "tutorial_outline_instruction.md");
+const RESEARCH_INSTRUCTION_PATH = path.join(ROOT_DIR, "tutorial_research_instruction.md");
 const TUTORIAL_ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
+const TUTORIAL_OUTLINE_FILE = "tutorial-outline.json";
+const TUTORIAL_JSON_FILE = "tutorial.json";
+const TUTORIAL_HTML_FILE = "tutorial.html";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -42,19 +46,11 @@ async function main() {
 
   const tutorialDir = path.join(TUTORIALS_DIR, selection.id);
   if (selection.mode === "study") {
-    await runTutorialApp({
-      rootDir: ROOT_DIR,
-      tutorialDir,
-      tutorialJsonPath: path.join(tutorialDir, "tutorial.json"),
-      tutorialHtmlPath: path.join(tutorialDir, "tutorial.html"),
-      notesDir: path.join(tutorialDir, "notes"),
-      shouldOpenBrowser: !flags.has("--no-browser"),
-      shouldAttachTui: !flags.has("--no-attach"),
-    });
+    await startStudySession({ tutorialDir, flags });
     return;
   }
 
-  await startAuthoringSession(selection.id, tutorialDir);
+  await startAuthoringSession(selection.id, tutorialDir, flags);
 }
 
 async function promptForTutorialID() {
@@ -137,18 +133,24 @@ async function confirm(rl, message, defaultYes) {
   return confirm(rl, message, defaultYes);
 }
 
-async function startAuthoringSession(tutorialID, tutorialDir) {
+async function startAuthoringSession(tutorialID, tutorialDir, flags) {
   await fs.mkdir(path.join(tutorialDir, "notes"), { recursive: true });
-  const prompt = await buildAuthoringPrompt({ tutorialID, tutorialDir });
-  const exitCode = await runOpencodeSession({
-    workingDir: tutorialDir,
-    args: [tutorialDir, "--prompt", prompt],
-    sessionLabel: "authoring",
-  });
 
-  if (exitCode !== 0) {
-    throw new Error(`OpenCode authoring session exited with code ${exitCode}.`);
+  const phase = await detectAuthoringPhase(tutorialDir);
+  if (phase === "research") {
+    await startResearchSession({ tutorialID, tutorialDir, flags });
+    return;
   }
+
+  await startOutlineSession({ tutorialID, tutorialDir });
+
+  if (!(await fileExists(path.join(tutorialDir, TUTORIAL_OUTLINE_FILE)))) {
+    throw new Error(
+      `Outline phase completed without creating ${TUTORIAL_OUTLINE_FILE} in ${tutorialDir}.`
+    );
+  }
+
+  await startResearchSession({ tutorialID, tutorialDir, flags });
 }
 
 async function startVibeSession() {
@@ -219,11 +221,132 @@ async function listTutorials() {
 }
 
 async function buildAuthoringPrompt({ tutorialID, tutorialDir }) {
-  const template = await fs.readFile(TUTOR_INSTRUCTION_PATH, "utf8");
+  const template = await fs.readFile(OUTLINE_INSTRUCTION_PATH, "utf8");
+  return renderInstructionTemplate(template, { tutorialID, tutorialDir });
+}
+
+async function detectAuthoringPhase(tutorialDir) {
+  const tutorialJsonPath = path.join(tutorialDir, TUTORIAL_JSON_FILE);
+  if (await fileExists(tutorialJsonPath)) {
+    return "complete";
+  }
+
+  const tutorialOutlinePath = path.join(tutorialDir, TUTORIAL_OUTLINE_FILE);
+  if (await fileExists(tutorialOutlinePath)) {
+    return "research";
+  }
+
+  return "outline";
+}
+
+async function startOutlineSession({ tutorialID, tutorialDir }) {
+  process.stdout.write(
+    `Starting outline phase. Create ${TUTORIAL_OUTLINE_FILE}, then the research phase will begin automatically.\n`
+  );
+
+  const prompt = await buildAuthoringPrompt({ tutorialID, tutorialDir });
+  const exitCode = await runOpencodeSession({
+    workingDir: tutorialDir,
+    args: [tutorialDir, "--prompt", prompt],
+    sessionLabel: "outline",
+  });
+
+  if (exitCode !== 0) {
+    throw new Error(`OpenCode outline session exited with code ${exitCode}.`);
+  }
+}
+
+async function startResearchSession({ tutorialID, tutorialDir, flags }) {
+  const tutorialOutlinePath = path.join(tutorialDir, TUTORIAL_OUTLINE_FILE);
+  if (!(await fileExists(tutorialOutlinePath))) {
+    throw new Error(
+      `Cannot start research phase because ${TUTORIAL_OUTLINE_FILE} is missing in ${tutorialDir}.`
+    );
+  }
+
+  process.stdout.write(
+    `Starting research phase from ${TUTORIAL_OUTLINE_FILE}. The session should research modules in parallel and produce ${TUTORIAL_JSON_FILE}.\n`
+  );
+
+  const prompt = await buildResearchPrompt({ tutorialID, tutorialDir });
+  const exitCode = await runOpencodeSession({
+    workingDir: tutorialDir,
+    args: [tutorialDir, "--prompt", prompt],
+    sessionLabel: "research",
+  });
+
+  if (exitCode !== 0) {
+    throw new Error(`OpenCode research session exited with code ${exitCode}.`);
+  }
+
+  const tutorialJsonPath = path.join(tutorialDir, TUTORIAL_JSON_FILE);
+  if (!(await fileExists(tutorialJsonPath))) {
+    throw new Error(
+      `Research phase completed without creating ${TUTORIAL_JSON_FILE} in ${tutorialDir}.`
+    );
+  }
+
+  generateTutorialHtml({ tutorialDir });
+  await startStudySession({ tutorialDir, flags });
+}
+
+async function buildResearchPrompt({ tutorialID, tutorialDir }) {
+  const template = await fs.readFile(RESEARCH_INSTRUCTION_PATH, "utf8");
+  return renderInstructionTemplate(template, { tutorialID, tutorialDir });
+}
+
+function renderInstructionTemplate(template, { tutorialID, tutorialDir }) {
   return template
     .replaceAll("{{TUTORIAL_ID}}", tutorialID)
     .replaceAll("{{TUTORIAL_DIR}}", tutorialDir)
-    .replaceAll("{{ROOT_DIR}}", ROOT_DIR);
+    .replaceAll("{{ROOT_DIR}}", ROOT_DIR)
+    .replaceAll("{{TUTORIAL_OUTLINE_PATH}}", path.join(tutorialDir, TUTORIAL_OUTLINE_FILE))
+    .replaceAll("{{TUTORIAL_JSON_PATH}}", path.join(tutorialDir, TUTORIAL_JSON_FILE))
+    .replaceAll("{{TUTORIAL_HTML_PATH}}", path.join(tutorialDir, TUTORIAL_HTML_FILE));
+}
+
+async function fileExists(filePath) {
+  try {
+    const stat = await fs.stat(filePath);
+    return stat.isFile();
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return false;
+    }
+    throw error;
+  }
+}
+
+function generateTutorialHtml({ tutorialDir }) {
+  const generatorPath = path.join(ROOT_DIR, "generate-tutorial-html.js");
+  const result = spawnSync(process.execPath, [generatorPath, TUTORIAL_JSON_FILE, TUTORIAL_HTML_FILE], {
+    cwd: tutorialDir,
+    encoding: "utf8",
+    stdio: "pipe",
+  });
+
+  if (result.status !== 0) {
+    const errorOutput = [result.stdout, result.stderr].filter(Boolean).join("\n").trim();
+    throw new Error(
+      `Tutorial HTML generation failed.${errorOutput ? `\n${errorOutput}` : ""}`
+    );
+  }
+
+  if (result.stdout) {
+    process.stdout.write(result.stdout);
+  }
+}
+
+async function startStudySession({ tutorialDir, flags }) {
+  await runTutorialApp({
+    rootDir: ROOT_DIR,
+    tutorialDir,
+    tutorialJsonPath: path.join(tutorialDir, TUTORIAL_JSON_FILE),
+    tutorialHtmlPath: path.join(tutorialDir, TUTORIAL_HTML_FILE),
+    notesDir: path.join(tutorialDir, "notes"),
+    shouldOpenBrowser: !flags.has("--no-browser"),
+    shouldAttachTui: !flags.has("--no-attach"),
+  });
 }
 
 function printUsage() {
