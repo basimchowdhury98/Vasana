@@ -13,7 +13,6 @@ const ROOT_DIR = __dirname;
 
 let siteServer;
 let opencodeProcess;
-let attachProcess;
 let browserProcess;
 let browserProfileDir;
 let shuttingDown = false;
@@ -24,13 +23,15 @@ async function runTutorialApp(options) {
   shuttingDown = false;
   siteServer = undefined;
   opencodeProcess = undefined;
-  attachProcess = undefined;
   browserProcess = undefined;
   browserProfileDir = undefined;
 
   try {
     wireSignals();
-    await fs.mkdir(runtimeConfig.notesDir, { recursive: true });
+    await Promise.all([
+      fs.mkdir(runtimeConfig.notesDir, { recursive: true }),
+      fs.mkdir(runtimeConfig.ocSessionsDir, { recursive: true }),
+    ]);
 
     const [sitePort, opencodePort] = await Promise.all([
       getAvailablePort(),
@@ -45,13 +46,10 @@ async function runTutorialApp(options) {
     startOpencodeServer(opencodePort);
     await waitForOpencode(opencodePort);
 
-    const session = await createSession(opencodePort, tutorial.title);
-    await seedTutorSession({ opencodePort, sessionID: session.id, tutorial });
-
     siteServer = await startSiteServer({
+      tutorial,
       opencodePort,
       sitePort,
-      sessionID: session.id,
       siteFilePath: runtimeConfig.tutorialHtmlPath,
     });
 
@@ -59,7 +57,6 @@ async function runTutorialApp(options) {
       tutorial,
       opencodePort,
       sitePort,
-      sessionID: session.id,
       tutorialJsonPath: runtimeConfig.tutorialJsonPath,
       siteFilePath: runtimeConfig.tutorialHtmlPath,
     });
@@ -68,13 +65,7 @@ async function runTutorialApp(options) {
       await openBrowser(`http://${HOST}:${sitePort}`);
     }
 
-    if (runtimeConfig.shouldAttachTui) {
-      await attachTui({ opencodePort, sessionID: session.id });
-      await cleanup();
-      return;
-    }
-
-    process.stdout.write("\nRunning without TUI attach. Press Ctrl+C to stop.\n");
+    process.stdout.write("\nTutorial app is running. Press Ctrl+C to stop.\n");
     await new Promise(() => {});
   } catch (error) {
     await cleanup();
@@ -92,8 +83,8 @@ function createRuntimeConfig(options = {}) {
     tutorialJsonPath: path.resolve(options.tutorialJsonPath || path.join(tutorialDir, "tutorial.json")),
     tutorialHtmlPath: path.resolve(options.tutorialHtmlPath || path.join(tutorialDir, "tutorial.html")),
     notesDir: path.resolve(options.notesDir || path.join(tutorialDir, "notes")),
+    ocSessionsDir: path.resolve(options.ocSessionsDir || path.join(tutorialDir, "oc_sessions")),
     shouldOpenBrowser: options.shouldOpenBrowser !== false,
-    shouldAttachTui: options.shouldAttachTui !== false,
   };
 }
 
@@ -181,8 +172,8 @@ async function createSession(port, tutorialTitle) {
   return response.json();
 }
 
-async function seedTutorSession({ opencodePort, sessionID, tutorial }) {
-  const intro = [
+function buildTutorSessionIntro(tutorial) {
+  return [
     `I am reading and learning about \"${tutorial.title}\".`,
     `Topic overview: ${tutorial.description}`,
     "You may receive no reply messages that give you more specific context about articles or videos I am currently on.",
@@ -191,6 +182,10 @@ async function seedTutorSession({ opencodePort, sessionID, tutorial }) {
     "Following those messages may be specific question the user has. You must answer those questions.",
     "No response is needed to this setup message.",
   ].join("\n");
+}
+
+async function seedTutorSession({ opencodePort, sessionID, tutorial }) {
+  const intro = buildTutorSessionIntro(tutorial);
 
   await sendNoReplyMessage({
     opencodePort,
@@ -199,7 +194,9 @@ async function seedTutorSession({ opencodePort, sessionID, tutorial }) {
   });
 }
 
-async function startSiteServer({ opencodePort, sitePort, sessionID, siteFilePath }) {
+async function startSiteServer({ tutorial, opencodePort, sitePort, siteFilePath }) {
+  const resourceIndex = buildResourceIndex(tutorial);
+
   const server = http.createServer(async (request, response) => {
     try {
       if (request.method === "GET" && (request.url === "/" || request.url === "/index.html" || request.url === "/tutorial.html")) {
@@ -209,33 +206,54 @@ async function startSiteServer({ opencodePort, sitePort, sessionID, siteFilePath
         return;
       }
 
-      if (request.method === "POST" && request.url === "/api/link-context") {
+      if (request.method === "POST" && request.url === "/api/chat/open") {
         const body = await readJsonBody(request);
-        const moduleTitle = asCleanString(body.moduleTitle) || "unknown module";
-        const resourceTitle = asCleanString(body.resourceTitle) || asCleanString(body.resourceUrl) || "unknown link";
-        const resourceUrl = asCleanString(body.resourceUrl);
-        const resourceType = asCleanString(body.resourceType);
-
-        let text = `I am now on module ${moduleTitle} and reading/watching: ${resourceTitle}`;
-        if (resourceUrl) {
-          text += ` (${resourceUrl})`;
-        }
-        text += ". Questions about this link may follow.";
-        if (resourceUrl) {
-          text += " If asked about this link or section, fetch and read this URL before answering.";
-        }
-        if (resourceType) {
-          text += ` Resource type: ${resourceType}.`;
-        }
-
-        const result = await sendNoReplyMessage({ opencodePort, sessionID, text });
+        const resource = getIndexedResource(resourceIndex, body.key);
+        const record = await ensureChatSession({ opencodePort, tutorial, resource });
 
         response.writeHead(200, { "content-type": "application/json; charset=utf-8" });
         response.end(JSON.stringify({
           ok: true,
-          sessionID,
-          messageID: result.info.id,
-          text,
+          sessionID: record.sessionID,
+          transcript: record.transcript,
+          resourceTitle: record.resourceTitle,
+        }));
+        return;
+      }
+
+      if (request.method === "POST" && request.url === "/api/chat/message") {
+        const body = await readJsonBody(request);
+        const resource = getIndexedResource(resourceIndex, body.key);
+        const userText = asCleanString(body.text);
+
+        if (!userText) {
+          throw new Error("A message is required.");
+        }
+
+        const record = await ensureChatSession({ opencodePort, tutorial, resource });
+        const assistantText = await sendChatMessage({
+          opencodePort,
+          sessionID: record.sessionID,
+          text: userText,
+        });
+
+        const timestamp = new Date().toISOString();
+        const userMessage = { role: "user", text: userText, createdAt: timestamp };
+        const assistantMessage = {
+          role: "assistant",
+          text: assistantText,
+          createdAt: new Date().toISOString(),
+        };
+
+        record.transcript.push(userMessage, assistantMessage);
+        record.updatedAt = assistantMessage.createdAt;
+        await saveChatSessionRecord(record);
+
+        response.writeHead(200, { "content-type": "application/json; charset=utf-8" });
+        response.end(JSON.stringify({
+          ok: true,
+          sessionID: record.sessionID,
+          messages: [userMessage, assistantMessage],
         }));
         return;
       }
@@ -307,7 +325,7 @@ async function startSiteServer({ opencodePort, sitePort, sessionID, siteFilePath
 
       if (request.method === "GET" && request.url === "/health") {
         response.writeHead(200, { "content-type": "application/json; charset=utf-8" });
-        response.end(JSON.stringify({ ok: true, sessionID }));
+        response.end(JSON.stringify({ ok: true }));
         return;
       }
 
@@ -334,6 +352,47 @@ async function startSiteServer({ opencodePort, sitePort, sessionID, siteFilePath
   });
 
   return server;
+}
+
+function buildResourceIndex(tutorial) {
+  const index = new Map();
+
+  tutorial.modules.forEach((module, moduleIndex) => {
+    module.sections.forEach((resource) => {
+      const key = getCoreResourceKey(moduleIndex, resource.type);
+      index.set(key, buildResourceDescriptor({ key, module, resource }));
+    });
+
+    module["aditional-links"].forEach((resource, additionalIndex) => {
+      const key = getAdditionalResourceKey(moduleIndex, additionalIndex);
+      index.set(key, buildResourceDescriptor({ key, module, resource }));
+    });
+  });
+
+  return index;
+}
+
+function buildResourceDescriptor({ key, module, resource }) {
+  return {
+    key,
+    moduleID: module.id,
+    moduleTitle: module.title,
+    moduleDescription: module.description,
+    resourceType: resource.type,
+    resourceTitle: resource.title,
+    resourceDescription: resource.description,
+    resourceUrl: resource.url,
+  };
+}
+
+function getIndexedResource(resourceIndex, value) {
+  const key = asChatKey(value);
+  const resource = key ? resourceIndex.get(key) : undefined;
+  if (!resource) {
+    throw new Error("A valid resource key is required.");
+  }
+
+  return resource;
 }
 
 async function readJsonBody(request) {
@@ -367,12 +426,33 @@ function asNoteFileName(value) {
   return /^[a-z0-9_]+\.md$/i.test(trimmed) ? trimmed : "";
 }
 
+function asChatKey(value) {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  const trimmed = value.trim();
+  return /^[a-z0-9_]+$/i.test(trimmed) ? trimmed : "";
+}
+
 function resolveNotePath(fileName) {
   const resolvedPath = path.resolve(runtimeConfig.notesDir, fileName);
   const relativePath = path.relative(runtimeConfig.notesDir, resolvedPath);
 
   if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
     throw new Error("Invalid note path.");
+  }
+
+  return resolvedPath;
+}
+
+function resolveChatSessionPath(key) {
+  const fileName = `${key}.json`;
+  const resolvedPath = path.resolve(runtimeConfig.ocSessionsDir, fileName);
+  const relativePath = path.relative(runtimeConfig.ocSessionsDir, resolvedPath);
+
+  if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+    throw new Error("Invalid session path.");
   }
 
   return resolvedPath;
@@ -441,13 +521,207 @@ async function sendNoReplyMessage({ opencodePort, sessionID, text }) {
   return response.json();
 }
 
-function printStartupInfo({ tutorial, opencodePort, sitePort, sessionID, tutorialJsonPath, siteFilePath }) {
+async function sendChatMessage({ opencodePort, sessionID, text }) {
+  const response = await fetch(`http://${HOST}:${opencodePort}/session/${sessionID}/message`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      parts: [
+        {
+          type: "text",
+          text,
+        },
+      ],
+    }),
+    signal: AbortSignal.timeout(120000),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `OpenCode rejected the message (${response.status} ${response.statusText}): ${errorText}`
+    );
+  }
+
+  const payload = await response.json();
+  return extractMessageText(payload);
+}
+
+function extractMessageText(message) {
+  if (!message || !Array.isArray(message.parts)) {
+    return "";
+  }
+
+  return message.parts
+    .filter((part) => part && part.type === "text" && typeof part.text === "string")
+    .map((part) => part.text.trim())
+    .filter(Boolean)
+    .join("\n\n")
+    .trim();
+}
+
+async function ensureChatSession({ opencodePort, tutorial, resource }) {
+  const existingRecord = await loadChatSessionRecord(resource.key);
+  const record = existingRecord || createChatSessionRecord(resource);
+
+  if (record.sessionID && (await doesSessionExist(opencodePort, record.sessionID))) {
+    return record;
+  }
+
+  const session = await createSession(opencodePort, `${tutorial.title} - ${resource.resourceTitle}`);
+  record.sessionID = session.id;
+  record.updatedAt = new Date().toISOString();
+
+  await seedTutorSession({ opencodePort, sessionID: record.sessionID, tutorial });
+  await sendNoReplyMessage({
+    opencodePort,
+    sessionID: record.sessionID,
+    text: buildResourceContextMessage(tutorial, resource),
+  });
+
+  if (record.transcript.length > 0) {
+    await sendNoReplyMessage({
+      opencodePort,
+      sessionID: record.sessionID,
+      text: buildTranscriptRestoreMessage(record.transcript),
+    });
+  }
+
+  await saveChatSessionRecord(record);
+  return record;
+}
+
+function createChatSessionRecord(resource) {
+  const timestamp = new Date().toISOString();
+  return {
+    key: resource.key,
+    sessionID: "",
+    moduleID: resource.moduleID,
+    moduleTitle: resource.moduleTitle,
+    moduleDescription: resource.moduleDescription,
+    resourceType: resource.resourceType,
+    resourceTitle: resource.resourceTitle,
+    resourceDescription: resource.resourceDescription,
+    resourceUrl: resource.resourceUrl,
+    transcript: [],
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+}
+
+async function loadChatSessionRecord(key) {
+  const sessionPath = resolveChatSessionPath(key);
+
+  try {
+    const raw = await fs.readFile(sessionPath, "utf8");
+    const parsed = JSON.parse(raw);
+    return normalizeChatSessionRecord(key, parsed);
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return null;
+    }
+    throw error;
+  }
+}
+
+function normalizeChatSessionRecord(key, parsed) {
+  return {
+    key,
+    sessionID: asCleanString(parsed?.sessionID),
+    moduleID: asCleanString(parsed?.moduleID),
+    moduleTitle: asCleanString(parsed?.moduleTitle),
+    moduleDescription: asCleanString(parsed?.moduleDescription),
+    resourceType: asCleanString(parsed?.resourceType),
+    resourceTitle: asCleanString(parsed?.resourceTitle),
+    resourceDescription: asCleanString(parsed?.resourceDescription),
+    resourceUrl: asCleanString(parsed?.resourceUrl),
+    transcript: normalizeTranscript(parsed?.transcript),
+    createdAt: asCleanString(parsed?.createdAt) || new Date().toISOString(),
+    updatedAt: asCleanString(parsed?.updatedAt) || new Date().toISOString(),
+  };
+}
+
+function normalizeTranscript(messages) {
+  if (!Array.isArray(messages)) {
+    return [];
+  }
+
+  return messages
+    .map((message) => ({
+      role: message?.role === "assistant" ? "assistant" : "user",
+      text: typeof message?.text === "string" ? message.text : "",
+      createdAt: asCleanString(message?.createdAt) || new Date().toISOString(),
+    }))
+    .filter((message) => message.text.trim() !== "");
+}
+
+async function saveChatSessionRecord(record) {
+  const sessionPath = resolveChatSessionPath(record.key);
+  await fs.mkdir(runtimeConfig.ocSessionsDir, { recursive: true });
+  await fs.writeFile(sessionPath, JSON.stringify(record, null, 2) + "\n", "utf8");
+}
+
+async function doesSessionExist(opencodePort, sessionID) {
+  const response = await fetch(`http://${HOST}:${opencodePort}/session/${sessionID}`, {
+    signal: AbortSignal.timeout(5000),
+  });
+
+  if (response.status === 404) {
+    return false;
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Could not verify OpenCode session (${response.status} ${response.statusText}): ${errorText}`
+    );
+  }
+
+  return true;
+}
+
+function buildResourceContextMessage(tutorial, resource) {
+  return [
+    "This chat is for a single tutorial resource.",
+    `Tutorial: ${tutorial.title}`,
+    `Tutorial description: ${tutorial.description}`,
+    `Module id: ${resource.moduleID}`,
+    `Module title: ${resource.moduleTitle}`,
+    `Module description: ${resource.moduleDescription}`,
+    `Resource type: ${resource.resourceType}`,
+    `Resource title: ${resource.resourceTitle}`,
+    `Resource description: ${resource.resourceDescription}`,
+    `Resource URL: ${resource.resourceUrl}`,
+    "Questions in this chat are about this specific resource unless the user says otherwise.",
+    "When answering questions about this resource, fetch and read the resource URL before answering.",
+    "No response is needed to this context message.",
+  ].join("\n");
+}
+
+function buildTranscriptRestoreMessage(transcript) {
+  const lines = [
+    "Previous chat transcript for this resource follows.",
+    "Use it as prior conversation context for future replies.",
+    "No response is needed to this transcript restore message.",
+    "",
+  ];
+
+  for (const message of transcript) {
+    lines.push(`${message.role === "assistant" ? "Assistant" : "User"}: ${message.text}`);
+    lines.push("");
+  }
+
+  return lines.join("\n").trim();
+}
+
+function printStartupInfo({ tutorial, opencodePort, sitePort, tutorialJsonPath, siteFilePath }) {
   process.stdout.write(`\n${tutorial.title} app is ready.\n`);
   process.stdout.write(`Tutorial JSON: ${tutorialJsonPath}\n`);
   process.stdout.write(`Generated HTML: ${siteFilePath}\n`);
   process.stdout.write(`Site URL: http://${HOST}:${sitePort}\n`);
   process.stdout.write(`OpenCode URL: http://${HOST}:${opencodePort}\n`);
-  process.stdout.write(`Session ID: ${sessionID}\n`);
 }
 
 async function openBrowser(url) {
@@ -509,65 +783,12 @@ function findBrowserCommand() {
   return null;
 }
 
-async function attachTui({ opencodePort, sessionID }) {
-  process.stdout.write("Opening Chromium and attaching this terminal to the same OpenCode session...\n\n");
-
-  const exitCode = await new Promise((resolve, reject) => {
-    attachProcess = spawn(
-      "opencode",
-      [
-        "attach",
-        `http://${HOST}:${opencodePort}`,
-        "--dir",
-        runtimeConfig.rootDir,
-        "--session",
-        sessionID,
-      ],
-      {
-        cwd: runtimeConfig.rootDir,
-        stdio: "inherit",
-      }
-    );
-
-    attachProcess.once("error", (error) => {
-      if (shuttingDown) {
-        resolve(0);
-        return;
-      }
-
-      reject(error);
-    });
-
-    attachProcess.once("exit", (code, signal) => {
-      if (shuttingDown) {
-        resolve(0);
-        return;
-      }
-
-      if (signal) {
-        reject(new Error(`OpenCode TUI exited from signal ${signal}.`));
-        return;
-      }
-      resolve(code ?? 0);
-    });
-  });
-
-  if (exitCode !== 0) {
-    throw new Error(`OpenCode TUI exited with code ${exitCode}.`);
-  }
-}
-
 async function cleanup() {
   if (shuttingDown) {
     return;
   }
 
   shuttingDown = true;
-
-  if (attachProcess && attachProcess.exitCode === null) {
-    attachProcess.kill("SIGTERM");
-    await waitForChildExit(attachProcess, 2000);
-  }
 
   if (browserProcess && browserProcess.exitCode === null) {
     browserProcess.kill("SIGTERM");
@@ -641,6 +862,14 @@ function getAvailablePort() {
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getCoreResourceKey(moduleIndex, resourceType) {
+  return `mod${moduleIndex + 1}_${resourceType}`;
+}
+
+function getAdditionalResourceKey(moduleIndex, additionalIndex) {
+  return `mod${moduleIndex + 1}_res${additionalIndex + 1}`;
 }
 
 module.exports = {

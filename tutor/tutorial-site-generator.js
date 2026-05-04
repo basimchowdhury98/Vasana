@@ -284,6 +284,13 @@ function renderTutorialSite(tutorial) {
         margin-top: 12px;
       }
 
+      .resource-action-buttons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
       .note-trigger {
         appearance: none;
         border: 1px solid rgba(181, 106, 60, 0.28);
@@ -300,6 +307,38 @@ function renderTutorialSite(tutorial) {
       .note-trigger:hover {
         border-color: rgba(181, 106, 60, 0.55);
         background: #fff7ee;
+      }
+
+      .ai-trigger {
+        appearance: none;
+        border: 1px solid rgba(181, 106, 60, 0.28);
+        background: var(--accent);
+        color: #fffaf1;
+        border-radius: 999px;
+        padding: 7px 12px;
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        transition: filter 160ms ease, transform 160ms ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        min-width: 36px;
+        height: 36px;
+        padding: 0;
+      }
+
+      .ai-trigger:hover {
+        filter: brightness(1.06);
+        transform: translateY(-1px);
+      }
+
+      .ai-trigger svg {
+        width: 17px;
+        height: 17px;
+        display: block;
+        pointer-events: none;
       }
 
       .note-editor {
@@ -341,6 +380,173 @@ function renderTutorialSite(tutorial) {
         font-size: 12px;
         color: var(--muted);
         min-height: 1.2em;
+      }
+
+      .chat-modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(39, 27, 16, 0.42);
+        backdrop-filter: blur(3px);
+        z-index: 1000;
+      }
+
+      .chat-modal.is-open {
+        display: flex;
+      }
+
+      .chat-dialog {
+        width: min(760px, 100%);
+        max-height: min(86vh, 900px);
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        background: rgba(255, 250, 241, 0.98);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: 0 22px 80px rgba(39, 27, 16, 0.24);
+        overflow: hidden;
+      }
+
+      .chat-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 20px 14px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, rgba(240, 220, 205, 0.62), rgba(255, 250, 241, 0));
+      }
+
+      .chat-kicker {
+        margin: 0 0 6px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .chat-title {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .chat-subtitle {
+        margin: 6px 0 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .chat-close {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: rgba(255, 250, 241, 0.94);
+        color: var(--ink);
+        border-radius: 999px;
+        padding: 7px 12px;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .chat-body {
+        overflow: auto;
+        padding: 18px 20px;
+        display: grid;
+        gap: 12px;
+        background: linear-gradient(180deg, rgba(248, 241, 231, 0.3), rgba(255, 250, 241, 0));
+      }
+
+      .chat-empty,
+      .chat-status {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .chat-message {
+        display: grid;
+        gap: 6px;
+        justify-items: start;
+      }
+
+      .chat-message[data-role="user"] {
+        justify-items: end;
+      }
+
+      .chat-message-role {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .chat-bubble {
+        max-width: min(560px, 100%);
+        padding: 12px 14px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: rgba(248, 241, 231, 0.95);
+        white-space: pre-wrap;
+        line-height: 1.5;
+      }
+
+      .chat-message[data-role="user"] .chat-bubble {
+        background: rgba(181, 106, 60, 0.12);
+        border-color: rgba(181, 106, 60, 0.2);
+      }
+
+      .chat-footer {
+        display: grid;
+        gap: 10px;
+        padding: 14px 20px 20px;
+        border-top: 1px solid var(--line);
+        background: rgba(255, 250, 241, 0.98);
+      }
+
+      .chat-form-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: end;
+      }
+
+      .chat-input {
+        width: 100%;
+        min-height: 92px;
+        max-height: 220px;
+        resize: vertical;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 12px 14px;
+        font: inherit;
+        color: var(--ink);
+        background: rgba(255, 250, 241, 0.96);
+      }
+
+      .chat-input:focus {
+        outline: 2px solid rgba(181, 106, 60, 0.2);
+        border-color: rgba(181, 106, 60, 0.45);
+      }
+
+      .chat-send {
+        appearance: none;
+        border: 0;
+        background: var(--accent);
+        color: #fffaf1;
+        border-radius: 999px;
+        padding: 10px 16px;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .chat-send:disabled,
+      .chat-input:disabled,
+      .chat-close:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
       }
 
       .extra-links {
@@ -425,6 +631,21 @@ function renderTutorialSite(tutorial) {
           display: grid;
         }
 
+        .chat-modal {
+          padding: 0;
+        }
+
+        .chat-dialog {
+          width: 100%;
+          max-height: 100vh;
+          height: 100vh;
+          border-radius: 0;
+        }
+
+        .chat-form-row {
+          grid-template-columns: 1fr;
+        }
+
         .extra-link-actions {
           justify-content: flex-start;
         }
@@ -448,43 +669,59 @@ function renderTutorialSite(tutorial) {
         </div>
       </main>
     </div>
+    ${renderChatModal()}
     <script>
       const noteEditorState = new WeakMap();
+      const chatState = {
+        activeKey: "",
+        loading: false,
+        sending: false,
+      };
+      const chatModal = document.querySelector("[data-chat-modal]");
+      const chatTitle = document.querySelector("[data-chat-title]");
+      const chatSubtitle = document.querySelector("[data-chat-subtitle]");
+      const chatBody = document.querySelector("[data-chat-body]");
+      const chatStatus = document.querySelector("[data-chat-status]");
+      const chatForm = document.querySelector("[data-chat-form]");
+      const chatInput = document.querySelector("[data-chat-input]");
+      const chatSend = document.querySelector("[data-chat-send]");
 
       document.addEventListener("click", (event) => {
-        const noteButton = event.target.closest("button[data-note-trigger]");
+        const target = getEventElement(event);
+        if (!target) {
+          return;
+        }
+
+        const noteButton = target.closest("button[data-note-trigger]");
         if (noteButton) {
           toggleNoteEditor(noteButton);
           return;
         }
 
-        const link = event.target.closest("a[data-track-resource]");
+        const aiButton = target.closest("button[data-ai-trigger]");
+        if (aiButton) {
+          openChatModal(aiButton);
+          return;
+        }
+
+        const closeButton = target.closest("button[data-chat-close]");
+        if (closeButton || target === chatModal) {
+          closeChatModal();
+          return;
+        }
+
+        const link = target.closest("a[data-track-resource]");
         if (!link) {
           return;
         }
 
-        const payload = {
-          moduleId: link.dataset.moduleId,
-          moduleTitle: link.dataset.moduleTitle,
-          resourceType: link.dataset.resourceType,
-          resourceTitle: link.dataset.resourceTitle,
-          resourceUrl: link.dataset.resourceUrl,
-        };
-
-        fetch("/api/link-context", {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-          },
-          body: JSON.stringify(payload),
-          keepalive: true,
-        }).catch(() => {
-          // The site should still open the resource even if the local relay is unavailable.
-        });
+        event.preventDefault();
+        openResourceWindow(link.href);
       });
 
       document.addEventListener("input", (event) => {
-        const input = event.target.closest("textarea[data-note-input]");
+        const target = getEventElement(event);
+        const input = target?.closest("textarea[data-note-input]");
         if (!input) {
           return;
         }
@@ -493,12 +730,39 @@ function renderTutorialSite(tutorial) {
       });
 
       document.addEventListener("keydown", (event) => {
-        const input = event.target.closest("textarea[data-note-input]");
+        if (event.key === "Escape" && chatModal.classList.contains("is-open")) {
+          closeChatModal();
+          return;
+        }
+
+        const chatComposer = getEventElement(event)?.closest("textarea[data-chat-input]");
+        if (chatComposer) {
+          if (event.key === "Enter" && !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey) {
+            event.preventDefault();
+            void submitChatMessage();
+            return;
+          }
+
+          if (event.key.toLowerCase() === "c" && event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey) {
+            event.preventDefault();
+            chatComposer.value = "";
+            setChatStatus("Cleared draft.");
+            return;
+          }
+        }
+
+        const target = getEventElement(event);
+        const input = target?.closest("textarea[data-note-input]");
         if (!input || event.key !== "Enter" || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) {
           return;
         }
 
         continueMarkdownList(input, event);
+      });
+
+      chatForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        await submitChatMessage();
       });
 
       async function toggleNoteEditor(button) {
@@ -606,6 +870,164 @@ function renderTutorialSite(tutorial) {
         if (element) {
           element.textContent = text;
         }
+      }
+
+      async function openChatModal(button) {
+        const resource = {
+          key: button.dataset.chatKey,
+          moduleTitle: button.dataset.moduleTitle || "Module",
+          resourceTitle: button.dataset.resourceTitle || "Resource",
+          resourceType: button.dataset.resourceType || "resource",
+        };
+
+        chatState.activeKey = resource.key;
+        chatTitle.textContent = resource.resourceTitle;
+        chatSubtitle.textContent = resource.moduleTitle + " - " + resource.resourceType;
+        chatModal.classList.add("is-open");
+        document.body.style.overflow = "hidden";
+        renderChatMessages([]);
+        setChatStatus("Loading chat...");
+        setChatUiBusy(true);
+
+        try {
+          const response = await fetch("/api/chat/open", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({ key: resource.key }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Could not open chat.");
+          }
+
+          const payload = await response.json();
+          if (chatState.activeKey !== resource.key) {
+            return;
+          }
+
+          renderChatMessages(Array.isArray(payload.transcript) ? payload.transcript : []);
+          setChatStatus("Session saved in oc_sessions and restored when reopened.");
+          chatInput.focus();
+        } catch {
+          renderChatMessages([]);
+          setChatStatus("Could not open chat.");
+        } finally {
+          if (chatState.activeKey === resource.key) {
+            setChatUiBusy(false);
+          }
+        }
+      }
+
+      function closeChatModal() {
+        chatModal.classList.remove("is-open");
+        document.body.style.overflow = "";
+        chatState.activeKey = "";
+        chatState.loading = false;
+        chatState.sending = false;
+      }
+
+      function renderChatMessages(messages) {
+        if (!Array.isArray(messages) || messages.length === 0) {
+          chatBody.innerHTML = '<div class="chat-empty">Ask about the current resource, request a summary, or dig into a confusing section.</div>';
+          return;
+        }
+
+        chatBody.innerHTML = messages.map(renderChatMessage).join("");
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }
+
+      function renderChatMessage(message) {
+        const role = message.role === "assistant" ? "assistant" : "user";
+        const label = role === "assistant" ? "AI" : "You";
+        return [
+          '<div class="chat-message" data-role="' + role + '">',
+          '  <div class="chat-message-role">' + label + '</div>',
+          '  <div class="chat-bubble">' + escapeHtml(message.text || "") + '</div>',
+          '</div>',
+        ].join("\\n");
+      }
+
+      function appendChatMessages(messages) {
+        const existing = chatBody.querySelector(".chat-empty");
+        if (existing) {
+          chatBody.innerHTML = "";
+        }
+
+        const markup = messages.map(renderChatMessage).join("");
+        chatBody.insertAdjacentHTML("beforeend", markup);
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }
+
+      async function submitChatMessage() {
+        const key = chatState.activeKey;
+        const text = chatInput.value.trim();
+        if (!key || !text || chatState.sending) {
+          return;
+        }
+
+        chatState.sending = true;
+        setChatUiBusy(true);
+        setChatStatus("Waiting for AI...");
+
+        try {
+          const response = await fetch("/api/chat/message", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({ key, text }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Could not send message.");
+          }
+
+          const payload = await response.json();
+          if (chatState.activeKey !== key) {
+            return;
+          }
+
+          appendChatMessages(Array.isArray(payload.messages) ? payload.messages : []);
+          chatInput.value = "";
+          setChatStatus("Saved.");
+          chatInput.focus();
+        } catch {
+          setChatStatus("Message failed.");
+        } finally {
+          if (chatState.activeKey === key) {
+            chatState.sending = false;
+            setChatUiBusy(false);
+          }
+        }
+      }
+
+      function setChatUiBusy(isBusy) {
+        chatState.loading = isBusy;
+        chatInput.disabled = isBusy;
+        chatSend.disabled = isBusy;
+      }
+
+      function setChatStatus(text) {
+        chatStatus.textContent = text;
+      }
+
+      function getEventElement(event) {
+        return event.target instanceof Element ? event.target : null;
+      }
+
+      function openResourceWindow(url) {
+        window.open(url, "_blank", "popup=yes,noopener,noreferrer");
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
       }
 
       function continueMarkdownList(input, event) {
@@ -724,6 +1146,7 @@ function renderModule(module, index) {
 
 function renderResourceCard(module, resource, moduleIndex) {
   const noteFileName = getCoreNoteFileName(moduleIndex, resource.type);
+  const resourceKey = getCoreResourceKey(moduleIndex, resource.type);
   return `
     <article class="resource-card">
       <span class="resource-type">${escapeHtml(resource.type)}</span>
@@ -731,7 +1154,10 @@ function renderResourceCard(module, resource, moduleIndex) {
       <p class="resource-description">${escapeHtml(resource.description)}</p>
       <div class="resource-actions">
         <div class="resource-meta">Primary learning path</div>
-        <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+        <div class="resource-action-buttons">
+          ${renderChatTrigger(module, resource, resourceKey)}
+          <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
+        </div>
       </div>
       ${renderNoteEditor(noteFileName, resource)}
     </article>
@@ -740,6 +1166,7 @@ function renderResourceCard(module, resource, moduleIndex) {
 
 function renderAdditionalLink(module, resource, moduleIndex, additionalIndex) {
   const noteFileName = getAdditionalNoteFileName(moduleIndex, additionalIndex);
+  const resourceKey = getAdditionalResourceKey(moduleIndex, additionalIndex);
   return `
     <li class="extra-link-item">
       <div class="extra-link-row">
@@ -748,6 +1175,7 @@ function renderAdditionalLink(module, resource, moduleIndex, additionalIndex) {
         </div>
         <div class="extra-link-actions">
           <span class="resource-type">${escapeHtml(resource.type)}</span>
+          ${renderChatTrigger(module, resource, resourceKey)}
           <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
         </div>
       </div>
@@ -767,12 +1195,53 @@ function renderNoteEditor(noteFileName, resource) {
   `;
 }
 
+function renderChatTrigger(module, resource, resourceKey) {
+  return `<button class="ai-trigger" type="button" aria-label="Open AI chat for ${escapeHtml(resource.title)}" title="Open AI chat" data-ai-trigger="true" data-chat-key="${escapeHtml(resourceKey)}" data-module-title="${escapeHtml(module.title)}" data-resource-title="${escapeHtml(resource.title)}" data-resource-type="${escapeHtml(resource.type)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2l1.8 4.7L18.5 8l-4.7 1.3L12 14l-1.8-4.7L5.5 8l4.7-1.3L12 2zm6.5 9l.9 2.6L22 14.5l-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6zM6 13l1.2 3.3L10.5 17l-3.3 1.2L6 21.5l-1.2-3.3L1.5 17l3.3-1.2L6 13z"/></svg></button>`;
+}
+
 function getCoreNoteFileName(moduleIndex, resourceType) {
   return `mod${moduleIndex + 1}_${resourceType}.md`;
 }
 
 function getAdditionalNoteFileName(moduleIndex, additionalIndex) {
   return `mod${moduleIndex + 1}_res${additionalIndex + 1}.md`;
+}
+
+function getCoreResourceKey(moduleIndex, resourceType) {
+  return `mod${moduleIndex + 1}_${resourceType}`;
+}
+
+function getAdditionalResourceKey(moduleIndex, additionalIndex) {
+  return `mod${moduleIndex + 1}_res${additionalIndex + 1}`;
+}
+
+function renderChatModal() {
+  return `
+    <div class="chat-modal" data-chat-modal="true" aria-hidden="true">
+      <div class="chat-dialog" role="dialog" aria-modal="true" aria-labelledby="chat-title">
+        <div class="chat-header">
+          <div>
+            <div class="chat-kicker">Resource chat</div>
+            <h2 class="chat-title" id="chat-title" data-chat-title="true">AI chat</h2>
+            <p class="chat-subtitle" data-chat-subtitle="true"></p>
+          </div>
+          <button class="chat-close" type="button" data-chat-close="true">Close</button>
+        </div>
+        <div class="chat-body" data-chat-body="true">
+          <div class="chat-empty">Ask about the current resource, request a summary, or dig into a confusing section.</div>
+        </div>
+        <div class="chat-footer">
+          <div class="chat-status" data-chat-status="true"></div>
+          <form data-chat-form="true">
+            <div class="chat-form-row">
+              <textarea class="chat-input" data-chat-input="true" placeholder="Ask a question about this resource..." spellcheck="true"></textarea>
+              <button class="chat-send" type="submit" data-chat-send="true">Send</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function escapeHtml(value) {

@@ -134,7 +134,10 @@ async function confirm(rl, message, defaultYes) {
 }
 
 async function startAuthoringSession(tutorialID, tutorialDir, flags) {
-  await fs.mkdir(path.join(tutorialDir, "notes"), { recursive: true });
+  await Promise.all([
+    fs.mkdir(path.join(tutorialDir, "notes"), { recursive: true }),
+    fs.mkdir(path.join(tutorialDir, "oc_sessions"), { recursive: true }),
+  ]);
 
   const phase = await detectAuthoringPhase(tutorialDir);
   if (phase === "research") {
@@ -344,15 +347,15 @@ async function startStudySession({ tutorialDir, flags }) {
     tutorialJsonPath: path.join(tutorialDir, TUTORIAL_JSON_FILE),
     tutorialHtmlPath: path.join(tutorialDir, TUTORIAL_HTML_FILE),
     notesDir: path.join(tutorialDir, "notes"),
+    ocSessionsDir: path.join(tutorialDir, "oc_sessions"),
     shouldOpenBrowser: !flags.has("--no-browser"),
-    shouldAttachTui: !flags.has("--no-attach"),
   });
 }
 
 function printUsage() {
   process.stdout.write(
-    "Usage:\n" +
-      "  tutor [--no-browser] [--no-attach]\n" +
+      "Usage:\n" +
+      "  tutor [--no-browser]\n" +
       "  tutor vibe\n"
   );
 }
