@@ -15,6 +15,8 @@ const TUTORIAL_ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
 const TUTORIAL_OUTLINE_FILE = "tutorial-outline.json";
 const TUTORIAL_JSON_FILE = "tutorial.json";
 const TUTORIAL_HTML_FILE = "tutorial.html";
+const AUDIT_DIR = ".logs";
+const AUDIT_FILE = "audit.txt";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -137,6 +139,7 @@ async function startAuthoringSession(tutorialID, tutorialDir, flags) {
   await Promise.all([
     fs.mkdir(path.join(tutorialDir, "notes"), { recursive: true }),
     fs.mkdir(path.join(tutorialDir, "oc_sessions"), { recursive: true }),
+    fs.mkdir(path.join(tutorialDir, AUDIT_DIR), { recursive: true }),
   ]);
 
   const phase = await detectAuthoringPhase(tutorialDir);
@@ -247,7 +250,9 @@ async function startOutlineSession({ tutorialID, tutorialDir }) {
     `Starting outline phase. Create ${TUTORIAL_OUTLINE_FILE}, then the research phase will begin automatically.\n`
   );
 
+  await resetAuditLog(tutorialDir);
   const prompt = await buildAuthoringPrompt({ tutorialID, tutorialDir });
+  const sessionBounds = captureSessionBounds();
   const exitCode = await runOpencodeSession({
     workingDir: tutorialDir,
     args: [tutorialDir, "--prompt", prompt],
@@ -257,6 +262,19 @@ async function startOutlineSession({ tutorialID, tutorialDir }) {
   if (exitCode !== 0) {
     throw new Error(`OpenCode outline session exited with code ${exitCode}.`);
   }
+
+  const session = resolveSinglePhaseSession({
+    tutorialDir,
+    startedAt: sessionBounds.startedAt,
+    endedAt: Date.now(),
+    phaseLabel: "outline",
+  });
+  await appendAuditPhase({
+    tutorialID,
+    tutorialDir,
+    phaseLabel: "outline",
+    sessions: [session],
+  });
 }
 
 async function startResearchSession({ tutorialID, tutorialDir, flags }) {
@@ -272,6 +290,7 @@ async function startResearchSession({ tutorialID, tutorialDir, flags }) {
   );
 
   const prompt = await buildResearchPrompt({ tutorialID, tutorialDir });
+  const sessionBounds = captureSessionBounds();
   const exitCode = await runOpencodeSession({
     workingDir: tutorialDir,
     args: [tutorialDir, "--prompt", prompt],
@@ -281,6 +300,20 @@ async function startResearchSession({ tutorialID, tutorialDir, flags }) {
   if (exitCode !== 0) {
     throw new Error(`OpenCode research session exited with code ${exitCode}.`);
   }
+
+  const rootSession = resolveSinglePhaseSession({
+    tutorialDir,
+    startedAt: sessionBounds.startedAt,
+    endedAt: Date.now(),
+    phaseLabel: "research",
+  });
+  const childSessions = listChildSessions(rootSession.id);
+  await appendAuditPhase({
+    tutorialID,
+    tutorialDir,
+    phaseLabel: "research",
+    sessions: [rootSession, ...childSessions],
+  });
 
   const tutorialJsonPath = path.join(tutorialDir, TUTORIAL_JSON_FILE);
   if (!(await fileExists(tutorialJsonPath))) {
@@ -338,6 +371,157 @@ function generateTutorialHtml({ tutorialDir }) {
   if (result.stdout) {
     process.stdout.write(result.stdout);
   }
+}
+
+function captureSessionBounds() {
+  return {
+    startedAt: Date.now(),
+  };
+}
+
+async function resetAuditLog(tutorialDir) {
+  const auditDir = path.join(tutorialDir, AUDIT_DIR);
+  await fs.mkdir(auditDir, { recursive: true });
+  await fs.writeFile(path.join(auditDir, AUDIT_FILE), "", "utf8");
+}
+
+function getAuditFilePath(tutorialDir) {
+  return path.join(tutorialDir, AUDIT_DIR, AUDIT_FILE);
+}
+
+function getOpencodeDbPath() {
+  const result = spawnSync("opencode", ["db", "path"], {
+    cwd: ROOT_DIR,
+    encoding: "utf8",
+    stdio: "pipe",
+  });
+
+  if (result.status !== 0) {
+    const errorOutput = [result.stdout, result.stderr].filter(Boolean).join("\n").trim();
+    throw new Error(`Could not determine OpenCode DB path.${errorOutput ? `\n${errorOutput}` : ""}`);
+  }
+
+  const dbPath = (result.stdout || "").trim();
+  if (!dbPath) {
+    throw new Error("OpenCode DB path was empty.");
+  }
+
+  return dbPath;
+}
+
+function queryOpencodeSessions(sql) {
+  const dbPath = getOpencodeDbPath();
+  const result = spawnSync("sqlite3", [dbPath, "-json", sql], {
+    cwd: ROOT_DIR,
+    encoding: "utf8",
+    stdio: "pipe",
+  });
+
+  if (result.status !== 0) {
+    const errorOutput = [result.stdout, result.stderr].filter(Boolean).join("\n").trim();
+    throw new Error(`Could not query OpenCode sessions.${errorOutput ? `\n${errorOutput}` : ""}`);
+  }
+
+  const raw = (result.stdout || "").trim();
+  if (!raw) {
+    return [];
+  }
+
+  try {
+    const rows = JSON.parse(raw);
+    return Array.isArray(rows) ? rows : [];
+  } catch (error) {
+    throw new Error(`Could not parse OpenCode session query output: ${error.message}`);
+  }
+}
+
+function resolveSinglePhaseSession({ tutorialDir, startedAt, endedAt, phaseLabel }) {
+  const safeDirectory = escapeSqlString(tutorialDir);
+  const rows = queryOpencodeSessions(
+    `select id, title, directory, path, agent, time_created, time_updated, parent_id from session ` +
+    `where directory = '${safeDirectory}' and parent_id is null and time_created >= ${startedAt} and time_created <= ${endedAt} ` +
+    `order by time_created asc`
+  );
+
+  if (rows.length !== 1) {
+    const ids = rows.map((row) => row.id).join(", ") || "none";
+    throw new Error(
+      `Could not resolve exactly one OpenCode ${phaseLabel} session for ${tutorialDir}. Found: ${ids}`
+    );
+  }
+
+  return normalizeSessionRow(rows[0]);
+}
+
+function listChildSessions(parentID) {
+  const safeParentID = escapeSqlString(parentID);
+  const rows = queryOpencodeSessions(
+    `select id, title, directory, path, agent, time_created, time_updated, parent_id from session ` +
+    `where parent_id = '${safeParentID}' order by time_created asc`
+  );
+
+  return rows.map(normalizeSessionRow);
+}
+
+function normalizeSessionRow(row) {
+  return {
+    id: typeof row?.id === "string" ? row.id : "",
+    title: typeof row?.title === "string" ? row.title : "",
+    directory: typeof row?.directory === "string" ? row.directory : "",
+    path: typeof row?.path === "string" ? row.path : "",
+    agent: typeof row?.agent === "string" ? row.agent : "",
+    parentID: typeof row?.parent_id === "string" ? row.parent_id : "",
+    timeCreated: Number.isFinite(row?.time_created) ? row.time_created : 0,
+    timeUpdated: Number.isFinite(row?.time_updated) ? row.time_updated : 0,
+  };
+}
+
+function escapeSqlString(value) {
+  return String(value).replaceAll("'", "''");
+}
+
+function exportOpencodeSession(sessionID) {
+  const result = spawnSync("opencode", ["export", sessionID], {
+    cwd: ROOT_DIR,
+    encoding: "utf8",
+    stdio: "pipe",
+    maxBuffer: 20 * 1024 * 1024,
+  });
+
+  if (result.status !== 0) {
+    const errorOutput = [result.stdout, result.stderr].filter(Boolean).join("\n").trim();
+    throw new Error(`Could not export OpenCode session ${sessionID}.${errorOutput ? `\n${errorOutput}` : ""}`);
+  }
+
+  return (result.stdout || "").trim();
+}
+
+async function appendAuditPhase({ tutorialID, tutorialDir, phaseLabel, sessions }) {
+  const auditFilePath = getAuditFilePath(tutorialDir);
+  const exportedAt = new Date().toISOString();
+  const blocks = [
+    `=== ${phaseLabel.toUpperCase()} AUDIT ===`,
+    `tutorial: ${tutorialID}`,
+    `directory: ${tutorialDir}`,
+    `exportedAt: ${exportedAt}`,
+    `sessionCount: ${sessions.length}`,
+    "",
+  ];
+
+  for (const session of sessions) {
+    const exportText = exportOpencodeSession(session.id);
+    blocks.push(`--- session ${session.id} ---`);
+    blocks.push(`title: ${session.title || "(untitled)"}`);
+    blocks.push(`agent: ${session.agent || ""}`);
+    blocks.push(`parentID: ${session.parentID || ""}`);
+    blocks.push(`timeCreated: ${session.timeCreated}`);
+    blocks.push(`timeUpdated: ${session.timeUpdated}`);
+    blocks.push("");
+    blocks.push(exportText);
+    blocks.push("");
+  }
+
+  await fs.appendFile(auditFilePath, `${blocks.join("\n")}\n`, "utf8");
 }
 
 async function startStudySession({ tutorialDir, flags }) {
