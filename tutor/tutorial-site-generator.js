@@ -716,7 +716,7 @@ function renderTutorialSite(tutorial) {
         }
 
         event.preventDefault();
-        openResourceWindow(link.href);
+        void openResourceWindow(link);
       });
 
       document.addEventListener("input", (event) => {
@@ -1017,8 +1017,27 @@ function renderTutorialSite(tutorial) {
         return event.target instanceof Element ? event.target : null;
       }
 
-      function openResourceWindow(url) {
-        window.open(url, "_blank", "popup=yes,noopener,noreferrer");
+      async function openResourceWindow(link) {
+        const key = link.dataset.resourceKey;
+        if (!key) {
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/resource/open", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({ key }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Could not open resource.");
+          }
+        } catch {
+          window.alert("Could not open this resource in your default browser.");
+        }
       }
 
       function escapeHtml(value) {
@@ -1150,7 +1169,7 @@ function renderResourceCard(module, resource, moduleIndex) {
   return `
     <article class="resource-card">
       <span class="resource-type">${escapeHtml(resource.type)}</span>
-      <h3><a class="resource-link" href="${escapeHtml(resource.url)}" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="${escapeHtml(module.id)}" data-module-title="${escapeHtml(module.title)}" data-resource-type="${escapeHtml(resource.type)}" data-resource-title="${escapeHtml(resource.title)}" data-resource-url="${escapeHtml(resource.url)}">${escapeHtml(resource.title)}</a></h3>
+      <h3><a class="resource-link" href="${escapeHtml(resource.url)}" target="_blank" rel="noreferrer" data-track-resource="true" data-resource-key="${escapeHtml(resourceKey)}" data-module-id="${escapeHtml(module.id)}" data-module-title="${escapeHtml(module.title)}" data-resource-type="${escapeHtml(resource.type)}" data-resource-title="${escapeHtml(resource.title)}" data-resource-url="${escapeHtml(resource.url)}">${escapeHtml(resource.title)}</a></h3>
       <p class="resource-description">${escapeHtml(resource.description)}</p>
       <div class="resource-actions">
         <div class="resource-meta">Primary learning path</div>
@@ -1171,7 +1190,7 @@ function renderAdditionalLink(module, resource, moduleIndex, additionalIndex) {
     <li class="extra-link-item">
       <div class="extra-link-row">
         <div class="extra-link-main">
-          <a class="extra-link-title" href="${escapeHtml(resource.url)}" target="_blank" rel="noreferrer" data-track-resource="true" data-module-id="${escapeHtml(module.id)}" data-module-title="${escapeHtml(module.title)}" data-resource-type="${escapeHtml(resource.type)}" data-resource-title="${escapeHtml(resource.title)}" data-resource-url="${escapeHtml(resource.url)}">${escapeHtml(resource.title)}</a>
+          <a class="extra-link-title" href="${escapeHtml(resource.url)}" target="_blank" rel="noreferrer" data-track-resource="true" data-resource-key="${escapeHtml(resourceKey)}" data-module-id="${escapeHtml(module.id)}" data-module-title="${escapeHtml(module.title)}" data-resource-type="${escapeHtml(resource.type)}" data-resource-title="${escapeHtml(resource.title)}" data-resource-url="${escapeHtml(resource.url)}">${escapeHtml(resource.title)}</a>
         </div>
         <div class="extra-link-actions">
           <span class="resource-type">${escapeHtml(resource.type)}</span>

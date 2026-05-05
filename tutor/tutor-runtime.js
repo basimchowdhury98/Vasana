@@ -258,6 +258,17 @@ async function startSiteServer({ tutorial, opencodePort, sitePort, siteFilePath 
         return;
       }
 
+      if (request.method === "POST" && request.url === "/api/resource/open") {
+        const body = await readJsonBody(request);
+        const resource = getIndexedResource(resourceIndex, body.key);
+
+        await openExternalResource(resource.resourceUrl);
+
+        response.writeHead(200, { "content-type": "application/json; charset=utf-8" });
+        response.end(JSON.stringify({ ok: true }));
+        return;
+      }
+
       if (request.method === "GET" && request.url && request.url.startsWith("/api/notes")) {
         const requestUrl = new URL(request.url, `http://${HOST}:${sitePort}`);
         const fileName = asNoteFileName(requestUrl.searchParams.get("file"));
@@ -767,6 +778,32 @@ async function openBrowser(url) {
   });
 }
 
+async function openExternalResource(url) {
+  const resourceUrl = asHttpUrl(url);
+  if (!resourceUrl) {
+    throw new Error("A valid resource URL is required.");
+  }
+
+  const openerCommand = findExternalOpenerCommand();
+  if (!openerCommand) {
+    throw new Error(`Could not find a system browser opener for ${resourceUrl}.`);
+  }
+
+  await new Promise((resolve, reject) => {
+    const child = spawn(openerCommand.command, [...openerCommand.args, resourceUrl], {
+      cwd: runtimeConfig.rootDir,
+      stdio: "ignore",
+      detached: true,
+    });
+
+    child.once("error", reject);
+    child.once("spawn", () => {
+      child.unref();
+      resolve();
+    });
+  });
+}
+
 function findBrowserCommand() {
   const commands = ["chromium", "chromium-browser", "google-chrome"];
 
@@ -781,6 +818,43 @@ function findBrowserCommand() {
   }
 
   return null;
+}
+
+function findExternalOpenerCommand() {
+  const candidates = process.platform === "darwin"
+    ? [{ command: "open", args: [] }]
+    : process.platform === "win32"
+      ? [{ command: "cmd.exe", args: ["/c", "start", ""] }]
+      : [{ command: "xdg-open", args: [] }];
+
+  for (const candidate of candidates) {
+    const result = spawnSync("which", [candidate.command], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    if (result.status === 0) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+function asHttpUrl(value) {
+  const text = asCleanString(value);
+  if (!text) {
+    return "";
+  }
+
+  try {
+    const parsed = new URL(text);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return "";
+    }
+    return parsed.toString();
+  } catch {
+    return "";
+  }
 }
 
 async function cleanup() {
