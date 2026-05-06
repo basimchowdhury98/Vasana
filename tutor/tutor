@@ -16,7 +16,12 @@ const TUTORIAL_OUTLINE_FILE = "tutorial-outline.json";
 const TUTORIAL_JSON_FILE = "tutorial.json";
 const TUTORIAL_HTML_FILE = "tutorial.html";
 const AUDIT_DIR = ".logs";
-const AUDIT_FILE = "audit.txt";
+const AUDIT_FILE_NAMES = {
+  outline: "outline_audit.txt",
+  research: "research_audit.txt",
+};
+const AUTHORING_MODEL = "openai/gpt-5.4";
+const AUTHORING_AGENT = "build";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -250,12 +255,20 @@ async function startOutlineSession({ tutorialID, tutorialDir }) {
     `Starting outline phase. Create ${TUTORIAL_OUTLINE_FILE}, then the research phase will begin automatically.\n`
   );
 
-  await resetAuditLog(tutorialDir);
+  await ensureAuditDir(tutorialDir);
   const prompt = await buildAuthoringPrompt({ tutorialID, tutorialDir });
   const sessionBounds = captureSessionBounds();
   const exitCode = await runOpencodeSession({
     workingDir: tutorialDir,
-    args: [tutorialDir, "--prompt", prompt],
+    args: [
+      tutorialDir,
+      "--prompt",
+      prompt,
+      "--agent",
+      AUTHORING_AGENT,
+      "--model",
+      AUTHORING_MODEL,
+    ],
     sessionLabel: "outline",
   });
 
@@ -293,7 +306,15 @@ async function startResearchSession({ tutorialID, tutorialDir, flags }) {
   const sessionBounds = captureSessionBounds();
   const exitCode = await runOpencodeSession({
     workingDir: tutorialDir,
-    args: [tutorialDir, "--prompt", prompt],
+    args: [
+      tutorialDir,
+      "--prompt",
+      prompt,
+      "--agent",
+      AUTHORING_AGENT,
+      "--model",
+      AUTHORING_MODEL,
+    ],
     sessionLabel: "research",
   });
 
@@ -379,14 +400,17 @@ function captureSessionBounds() {
   };
 }
 
-async function resetAuditLog(tutorialDir) {
-  const auditDir = path.join(tutorialDir, AUDIT_DIR);
-  await fs.mkdir(auditDir, { recursive: true });
-  await fs.writeFile(path.join(auditDir, AUDIT_FILE), "", "utf8");
+async function ensureAuditDir(tutorialDir) {
+  await fs.mkdir(path.join(tutorialDir, AUDIT_DIR), { recursive: true });
 }
 
-function getAuditFilePath(tutorialDir) {
-  return path.join(tutorialDir, AUDIT_DIR, AUDIT_FILE);
+function getAuditFilePath(tutorialDir, phaseLabel) {
+  const fileName = AUDIT_FILE_NAMES[phaseLabel];
+  if (!fileName) {
+    throw new Error(`Unsupported audit phase: ${phaseLabel}`);
+  }
+
+  return path.join(tutorialDir, AUDIT_DIR, fileName);
 }
 
 function getOpencodeDbPath() {
@@ -497,7 +521,8 @@ function exportOpencodeSession(sessionID) {
 }
 
 async function appendAuditPhase({ tutorialID, tutorialDir, phaseLabel, sessions }) {
-  const auditFilePath = getAuditFilePath(tutorialDir);
+  await ensureAuditDir(tutorialDir);
+  const auditFilePath = getAuditFilePath(tutorialDir, phaseLabel);
   const exportedAt = new Date().toISOString();
   const blocks = [
     `=== ${phaseLabel.toUpperCase()} AUDIT ===`,
@@ -521,7 +546,7 @@ async function appendAuditPhase({ tutorialID, tutorialDir, phaseLabel, sessions 
     blocks.push("");
   }
 
-  await fs.appendFile(auditFilePath, `${blocks.join("\n")}\n`, "utf8");
+  await fs.writeFile(auditFilePath, `${blocks.join("\n")}\n`, "utf8");
 }
 
 async function startStudySession({ tutorialDir, flags }) {
