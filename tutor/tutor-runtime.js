@@ -15,8 +15,11 @@ let siteServer;
 let opencodeProcess;
 let browserProcess;
 let browserProfileDir;
+let terminalWindowState;
 let shuttingDown = false;
 let runtimeConfig;
+
+const HIDDEN_TERMINAL_WORKSPACE = "special:tutor-terminal";
 
 async function runTutorialApp(options) {
   runtimeConfig = createRuntimeConfig(options);
@@ -25,6 +28,7 @@ async function runTutorialApp(options) {
   opencodeProcess = undefined;
   browserProcess = undefined;
   browserProfileDir = undefined;
+  terminalWindowState = undefined;
 
   try {
     wireSignals();
@@ -742,6 +746,7 @@ async function openBrowser(url) {
     return;
   }
 
+  terminalWindowState = getTerminalWindowState();
   browserProfileDir = await fs.mkdtemp(path.join(os.tmpdir(), "tutor-chromium-"));
   browserProcess = spawn(
     browserCommand,
@@ -763,8 +768,13 @@ async function openBrowser(url) {
       return;
     }
 
+    await restoreTerminalWindow();
     process.stderr.write(`\nChromium failed to start: ${error.message}\n`);
     await shutdownAndExit(1);
+  });
+
+  browserProcess.once("spawn", async () => {
+    await hideTerminalWindow();
   });
 
   browserProcess.once("exit", async (code, signal) => {
@@ -772,6 +782,7 @@ async function openBrowser(url) {
       return;
     }
 
+    await restoreTerminalWindow();
     const detail = signal ? `signal ${signal}` : `code ${code}`;
     process.stdout.write(`\nChromium window closed (${detail}). Shutting down app.\n`);
     await shutdownAndExit(code === 0 ? 0 : 1);
@@ -840,6 +851,87 @@ function findExternalOpenerCommand() {
   return null;
 }
 
+function getTerminalWindowState() {
+  if (!isHyprlandSession()) {
+    return null;
+  }
+
+  const result = spawnSync("hyprctl", ["-j", "activewindow"], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+  });
+
+  if (result.status !== 0 || !(result.stdout || "").trim()) {
+    return null;
+  }
+
+  try {
+    const window = JSON.parse(result.stdout);
+    const address = typeof window?.address === "string" ? window.address : "";
+    const workspaceName = typeof window?.workspace?.name === "string" ? window.workspace.name : "";
+    if (!address || !workspaceName) {
+      return null;
+    }
+
+    return {
+      address,
+      workspaceName,
+      isHidden: false,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function hideTerminalWindow() {
+  if (!terminalWindowState || terminalWindowState.isHidden) {
+    return;
+  }
+
+  const didHide = runHyprctlDispatch(
+    "movetoworkspacesilent",
+    `${HIDDEN_TERMINAL_WORKSPACE},address:${terminalWindowState.address}`
+  );
+
+  if (didHide) {
+    terminalWindowState.isHidden = true;
+  }
+}
+
+async function restoreTerminalWindow() {
+  if (!terminalWindowState || !terminalWindowState.isHidden) {
+    return;
+  }
+
+  const didMoveBack = runHyprctlDispatch(
+    "movetoworkspacesilent",
+    `${terminalWindowState.workspaceName},address:${terminalWindowState.address}`
+  );
+
+  if (didMoveBack) {
+    runHyprctlDispatch("focuswindow", `address:${terminalWindowState.address}`);
+  }
+
+  terminalWindowState.isHidden = false;
+}
+
+function runHyprctlDispatch(dispatcher, argument) {
+  if (!isHyprlandSession()) {
+    return false;
+  }
+
+  const result = spawnSync("hyprctl", ["dispatch", dispatcher, argument], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+
+  return result.status === 0;
+}
+
+function isHyprlandSession() {
+  return process.platform === "linux" && Boolean(process.env.HYPRLAND_INSTANCE_SIGNATURE);
+}
+
 function asHttpUrl(value) {
   const text = asCleanString(value);
   if (!text) {
@@ -883,6 +975,8 @@ async function cleanup() {
   if (browserProfileDir) {
     await fs.rm(browserProfileDir, { recursive: true, force: true });
   }
+
+  await restoreTerminalWindow();
 }
 
 async function shutdownAndExit(exitCode) {
