@@ -1,0 +1,335 @@
+{
+  "id": "cryptography",
+  "title": "Applied Cryptography for Experienced Developers",
+  "description": "A practical cryptography tutorial for experienced developers focused on choosing the right primitive, implementing safe workflows, and diagnosing trust failures in real systems. It covers hashes and HMACs, authenticated encryption, hybrid public-key designs, digital signatures, TLS validation, internal PKI issuance, SSH trust, and OpenPGP operations with an emphasis on hands-on practice and misuse analysis.",
+  "modules": [
+    {
+      "id": "hashes-integrity-and-mac-boundaries",
+      "title": "Hashes, Integrity, and MAC Boundaries",
+      "description": "Build a small integrity-checking workflow for files and messages, then compare plain hashes, keyed hashes, and HMAC in practice. The hands-on outcome is a lab that demonstrates why raw hashes do not provide authenticity, where MAC misuse happens, and how to choose between checksum, hash, HMAC, and password-hashing or KDF-style tools for different threat models.",
+      "sections": [
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "RFC 2104: HMAC: Keyed-Hashing for Message Authentication",
+          "description": "Defines HMAC precisely and gives the security model behind secret-key authenticity checks, including key sizing and truncation details that matter when comparing raw hashes to MACs.",
+          "url": "https://datatracker.ietf.org/doc/rfc2104"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "Using Encryption and Authentication Correctly",
+          "description": "Explains why encryption and non-keyed hashes do not prove authenticity, shows common MAC misuse patterns, and frames when HMAC or authenticated encryption is the right tool.",
+          "url": "https://paragonie.com/blog/2015/05/using-encryption-and-authentication-correctly"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "OWASP Password Storage Cheat Sheet",
+          "description": "Clarifies that password storage has a different threat model from file or message integrity and helps learners choose between fast hashes, HMAC, Argon2id, scrypt, bcrypt, and PBKDF2-HMAC.",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet"
+        },
+        {
+          "type": "lab",
+          "title": "crypto-lab-mac-race",
+          "description": "Interactive browser lab for comparing HMAC with naive hash-based constructions, including hands-on message manipulation and a length-extension attack demonstration.",
+          "url": "https://systemslibrarian.github.io/crypto-lab-mac-race/"
+        },
+        {
+          "type": "lab",
+          "title": "Hash Generator - MD5, SHA-1, SHA-256, SHA-384, SHA-512 & HMAC",
+          "description": "Hands-on hashing and HMAC workflow for text and files in one page, useful for building a practical integrity-checking exercise and contrasting plain hashes with keyed verification.",
+          "url": "https://mytimecalculator.com/hash-generator"
+        }
+      ],
+      "aditional-links": []
+    },
+    {
+      "id": "authenticated-symmetric-encryption",
+      "title": "Authenticated Symmetric Encryption",
+      "description": "Implement and test safe secret-key encryption using a modern AEAD library, then analyze broken patterns like ECB, unauthenticated CBC, nonce reuse, and ad hoc encrypt-then-hash designs. The deliverable is a working encrypt/decrypt tool with tamper detection plus a misuse analysis exercise that explains what fails under modification, replay, or bad nonce handling.",
+      "sections": [
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "AEAD constructions | Libsodium documentation",
+          "description": "Practical guide to modern AEAD choices, nonce rules, detached versus combined tags, associated data, and replay-resistant metadata handling.",
+          "url": "https://libsodium.gitbook.io/doc/secret-key_cryptography/aead"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "Authenticated encryption: why you need it and how it works",
+          "description": "Walks through why confidentiality alone is insufficient by showing malleability in older designs and how AEAD changes the failure mode under tampering.",
+          "url": "https://andrea.corbellini.name/2023/03/09/authenticated-encryption/"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "RFC 5116: An Interface and Algorithms for Authenticated Encryption",
+          "description": "Authoritative reference for the AEAD contract itself: key, nonce, plaintext, AAD, ciphertext, and fail-on-invalid-authentication behavior.",
+          "url": "https://www.rfc-editor.org/rfc/rfc5116"
+        },
+        {
+          "type": "lab",
+          "title": "AES-GCM Encryption & Authentication",
+          "description": "Browser-based AES-GCM lab for varying keys, nonces, AAD, and tags while observing decryption failures when ciphertext or metadata is tampered with.",
+          "url": "https://ciphertools.org/tools/aes/gcm"
+        },
+        {
+          "type": "lab",
+          "title": "Nonce Guard: AES-GCM vs AES-GCM-SIV",
+          "description": "Follow-along misuse lab that makes nonce reuse concrete by letting learners encrypt messages, reuse a nonce, and inspect the resulting attack surface.",
+          "url": "https://systemslibrarian.github.io/crypto-lab-nonce-guard/"
+        }
+      ],
+      "aditional-links": []
+    },
+    {
+      "id": "asymmetric-primitives-and-hybrid-encryption",
+      "title": "Asymmetric Primitives and Hybrid Encryption",
+      "description": "Build a small hybrid encryption flow that uses public-key cryptography only for key exchange or key wrapping and symmetric crypto for payload encryption. The concrete exercise is to compare RSA-style and modern key-agreement-based designs, inspect key formats, and produce a working message or file encryption demo that makes the division of responsibilities between public-key and symmetric cryptography explicit.",
+      "sections": [
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "Practical Cryptography for Developers: Asymmetric Key Ciphers",
+          "description": "Clear practitioner-oriented overview of KEM versus DEM, hybrid encryption, and the different roles asymmetric and symmetric cryptography play in real systems.",
+          "url": "https://cryptobook.nakov.com/asymmetric-key-ciphers"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "RFC 9180: Hybrid Public Key Encryption (HPKE)",
+          "description": "Modern reference for hybrid public-key encryption that makes the KEM, KDF, and AEAD split explicit and shows how current designs differ from textbook RSA usage.",
+          "url": "https://datatracker.ietf.org/doc/html/rfc9180"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "RFC 7468: Textual Encodings of PKIX, PKCS, and CMS Structures",
+          "description": "Useful key-format guide for understanding PEM labels and mapping PUBLIC KEY, PRIVATE KEY, and ENCRYPTED PRIVATE KEY blocks to the underlying structures developers encounter in practice.",
+          "url": "https://www.rfc-editor.org/rfc/rfc7468.txt"
+        },
+        {
+          "type": "lab",
+          "title": "CryptoHack - Public-Key Cryptography: RSA Decryption",
+          "description": "Hands-on RSA exercise for working directly with key parameters and seeing the limits of direct public-key encryption before moving to hybrid designs.",
+          "url": "https://cryptohack.org/courses/public-key/rsa_starter_5/"
+        },
+        {
+          "type": "lab",
+          "title": "CryptoHack - Public-Key Cryptography: Deriving Symmetric Keys",
+          "description": "Practical bridge into hybrid encryption where the learner derives a shared secret with Diffie-Hellman, turns it into an AES key, and decrypts a ciphertext.",
+          "url": "https://cryptohack.org/courses/public-key/dh-starter-5/"
+        }
+      ],
+      "aditional-links": []
+    },
+    {
+      "id": "digital-signatures-and-trust-decisions",
+      "title": "Digital Signatures and Trust Decisions",
+      "description": "Create a signing and verification workflow for code, artifacts, or documents, then explore how signature validity differs from trustworthiness and authorization. The hands-on outcome is a mini-system that signs structured data, verifies signatures, handles key rotation or revocation scenarios, and analyzes weak designs such as treating encryption as trust or treating any signature in a keyring as approval.",
+      "sections": [
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "Digital Signature | Tink | Google for Developers",
+          "description": "Good implementation baseline for signer and verifier roles, algorithm choices, and the distinction between authenticity and secrecy.",
+          "url": "https://developers.google.com/tink/digital-signature"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "Signature Validation - BankID documentation",
+          "description": "Detailed walkthrough of signature integrity, certificate chain validation, key usage, revocation, and the crucial difference between cryptographic validity and relying-party trust decisions.",
+          "url": "https://developer.bankid.no/bankid-esign-provider/pki/signature-validation/"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "Digital signatures and how to avoid them",
+          "description": "Sharp conceptual guide to the limits of signature validity alone, especially when audience, issuer, replay, and business-authorization checks are missing.",
+          "url": "https://neilmadden.blog/2024/09/18/digital-signatures-and-how-to-avoid-them/"
+        },
+        {
+          "type": "lab",
+          "title": "PGP Suite: Sign, Verify & Generate Keys",
+          "description": "Client-side signing lab for generating keys, producing signatures, and verifying them against the original content while making key rollover and revocation concerns concrete.",
+          "url": "https://8gwifi.org/pgp-suite.jsp"
+        },
+        {
+          "type": "lab",
+          "title": "CRL vs OCSP vs Stapling",
+          "description": "Interactive trust lab for stepping through revocation behavior and seeing why a signature or chain can be structurally valid but still untrustworthy.",
+          "url": "https://fixmycert.com/demos/crl-ocsp-stapling"
+        }
+      ],
+      "aditional-links": []
+    },
+    {
+      "id": "tls-certificate-chains-and-validation",
+      "title": "TLS Certificate Chains and Validation",
+      "description": "Inspect and validate real TLS certificate chains for a local or test service, tracing how hostname verification, SANs, EKUs, intermediates, and trust stores affect the outcome. The concrete lab is to diagnose certificate success and failure cases such as hostname mismatch, missing intermediates, expired certificates, and incorrect trust anchors, so the learner can reason through how X.509 works in practice.",
+      "sections": [
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "openssl-verification-options - OpenSSL Documentation",
+          "description": "Best practical reference for understanding trust anchors, path building, hostname checks, purpose and EKU handling, and why real OpenSSL validation succeeds or fails.",
+          "url": "https://www.openssl.org/docs/manmaster/man1/openssl-verification-options.html"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "A Web PKI x509 certificate primer - Mozilla | MDN",
+          "description": "Strong conceptual bridge from X.509 fields to browser-facing errors, including SANs, basic constraints, key usage, EKU, intermediates, and common failure cases.",
+          "url": "https://devdoc.net/web/developer.mozilla.org/en-US/docs/Mozilla/Security/x509_Certificates.html"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "RFC 6125: Representation and Verification of Domain-Based Application Service Identity",
+          "description": "Authoritative hostname-verification reference that shows why a valid chain is still insufficient when the service identity does not match the requested hostname.",
+          "url": "https://www.rfc-editor.org/rfc/rfc6125"
+        },
+        {
+          "type": "lab",
+          "title": "OpsKit SSL Tools",
+          "description": "Browser lab for pasting certificates and chains, checking hostname matching, EKUs, missing intermediates, expiry, and optional trust-anchor behavior.",
+          "url": "https://opskit.tools/tools/ssl-tools/"
+        },
+        {
+          "type": "lab",
+          "title": "Encode64 TLS Certificate Checker",
+          "description": "Follow-along live-endpoint checker for inspecting SAN coverage, hostname mismatch, incomplete chains, expiry windows, and other practical TLS diagnostics.",
+          "url": "https://encode64.com/en/system/tls-certificate-checker"
+        }
+      ],
+      "aditional-links": []
+    },
+    {
+      "id": "issuing-certificates-in-a-small-internal-pki",
+      "title": "Issuing Certificates in a Small Internal PKI",
+      "description": "Create a root CA, an intermediate CA, and leaf certificates for internal services, then issue and deploy certificates with constrained purposes and lifetimes. The deliverable is a private PKI lab that covers chain construction, internal trust distribution, revocation and rotation concerns, and the risks of overpowered internal CAs or misissued certificates.",
+      "sections": [
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "Everything you should know about certificates and PKI but are too afraid to ask",
+          "description": "Conceptual backbone for internal PKI covering trust stores, root and intermediate roles, chains, SANs, and why misissued certificates or overly broad CA trust are dangerous.",
+          "url": "https://smallstep.com/blog/everything-pki"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "Good certificates die young: what's passive revocation and how is it implemented?",
+          "description": "Focused explanation of short-lived certificates, automated renewal, and why passive revocation often fits internal PKI operations better than CRL or OCSP-heavy models.",
+          "url": "https://smallstep.com/blog/passive-revocation"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "Core CA Concepts and Architecture Explained",
+          "description": "Helpful internal-CA architecture guide covering provisioners, issuance policy, templates, multiple intermediates, and operational controls for constrained certificate issuance.",
+          "url": "https://smallstep.com/docs/step-ca/certificate-authority-core-concepts/index.html"
+        },
+        {
+          "type": "lab",
+          "title": "OpenSSL Certificate Authority",
+          "description": "End-to-end CA lab for creating an offline root, issuing an intermediate, signing server and client certificates, building chains, and handling revocation with concrete OpenSSL commands.",
+          "url": "https://jamielinux.com/docs/openssl-certificate-authority/"
+        },
+        {
+          "type": "lab",
+          "title": "Basic Certificate Authority Operations",
+          "description": "Operational follow-along lab for issuing leaf certificates, setting lifetimes, renewing, and revoking certificates in a small internal CA workflow.",
+          "url": "https://smallstep.com/docs/step-ca/basic-certificate-authority-operations/"
+        }
+      ],
+      "aditional-links": []
+    },
+    {
+      "id": "ssh-keys-host-verification-and-ssh-certificates",
+      "title": "SSH Keys, Host Verification, and SSH Certificates",
+      "description": "Set up practical SSH authentication workflows with agents, passphrase-protected keys, and `known_hosts`, then examine how host identity is established and how SSH certificates change operational trust. The concrete lab is to connect to local or test hosts, inspect and manage host keys, reproduce host verification events, and issue short-lived SSH user or host certificates to understand the difference between raw keys and CA-backed SSH trust.",
+      "sections": [
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "Using the SSH Key Agent to Remember Passphrases",
+          "description": "Practical starting point for keeping private keys passphrase-protected while using `ssh-agent` and `ssh-add` to make that workflow usable day to day.",
+          "url": "https://docs.oracle.com/en/operating-systems/oracle-linux/openssh/openssh-UsingtheSSHKeyAgenttoRememberPassphrases.html"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "Working With known_hosts",
+          "description": "Clear explanation of TOFU host identity, first-connection fingerprint prompts, and how to interpret or recover from host key mismatch warnings.",
+          "url": "https://docs.oracle.com/en/operating-systems/oracle-linux/openssh/openssh-WorkingWithknownhosts.html"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "If you're not using SSH certificates you're doing SSH wrong",
+          "description": "Good conceptual bridge from raw SSH keys to CA-backed SSH trust, including why short-lived certificates and central trust distribution can simplify operations.",
+          "url": "https://smallstep.com/blog/use-ssh-certificates/"
+        },
+        {
+          "type": "lab",
+          "title": "Run an SSH CA and connect to hosts using SSH certificates",
+          "description": "Complete SSH certificate lab for trusting a host CA, configuring user CA trust, issuing host and user certificates, and testing real logins against a local host.",
+          "url": "https://smallstep.com/docs/tutorials/ssh-certificate-login"
+        },
+        {
+          "type": "lab",
+          "title": "Lab 7: Setup and Configure SSH",
+          "description": "Step-by-step SSH key and host verification lab covering key generation, key installation, `known_hosts`, real connections, and host fingerprint mismatch behavior.",
+          "url": "https://seneca-ictoer.github.io/OPS245/A-Labs/lab7"
+        }
+      ],
+      "aditional-links": []
+    },
+    {
+      "id": "pgp-encryption-signing-and-key-trust",
+      "title": "PGP Encryption, Signing, and Key Trust",
+      "description": "Perform real PGP file or email-style signing and encryption tasks, then evaluate key distribution, fingerprint verification, subkeys, revocation, and trust assignment. The hands-on outcome is a working OpenPGP workflow plus a trust-management exercise that forces the learner to reason about identity binding, key rollover, lost private keys, and why PGP trust semantics are harder than the crypto primitives themselves.",
+      "sections": [
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "The GNU Privacy Handbook",
+          "description": "Comprehensive practical guide to real GnuPG workflows, including encryption, signing, fingerprint verification, revocation certificates, and web-of-trust decisions.",
+          "url": "https://www.gnupg.org/gph/en/manual.html"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "OpenPGP for Application Developers: Certificates",
+          "description": "Strong explanation of OpenPGP primary keys, subkeys, identity bindings, revocations, and third-party certifications as an evolving certificate model.",
+          "url": "https://openpgp.dev/book/certificates.html"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "Sequoia PGP Book: Keys, Subkeys, and Certificates",
+          "description": "Useful operational guide for understanding subkey separation, offline primary-key workflows, and how rollover or revocation can preserve identity continuity.",
+          "url": "https://book.sequoia-pgp.org/bckgrnd_keys_certificates.html"
+        },
+        {
+          "type": "lab",
+          "title": "PGP Practice Lab",
+          "description": "Browser-based OpenPGP practice environment for generating keys, importing recipients, encrypting, decrypting, signing, and verifying while reasoning about fingerprints and key exchange.",
+          "url": "https://pgppracticelab.org/"
+        },
+        {
+          "type": "lab",
+          "title": "Online/Offline PGP Tools",
+          "description": "Practical signing and encryption toolkit with distinct workflows for key generation, text signing, detached file signatures, verification, and trust-checking against fingerprints.",
+          "url": "https://www.pgptools.com/"
+        }
+      ],
+      "aditional-links": []
+    }
+  ]
+}

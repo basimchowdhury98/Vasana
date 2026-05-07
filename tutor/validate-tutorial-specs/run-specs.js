@@ -7,8 +7,9 @@ const path = require("node:path");
 const rootDir = path.resolve(__dirname, "..");
 const validatorPath = path.join(rootDir, "validate-tutorial.js");
 const validSpecPath = path.join(__dirname, "valid-tutorial.json");
+const researchInstructionPath = path.join(rootDir, "tutorial_research_instruction.md");
 
-const cases = [
+const validatorCases = [
   {
     name: "valid tutorial spec passes",
     file: validSpecPath,
@@ -20,13 +21,23 @@ const cases = [
     shouldPass: false,
   },
   {
-    name: "duplicate guide fails",
-    file: path.join(__dirname, "invalid-duplicate-guide.json"),
+    name: "wrong learn count fails",
+    file: path.join(__dirname, "invalid-wrong-learn-count.json"),
     shouldPass: false,
   },
   {
-    name: "missing video fails",
-    file: path.join(__dirname, "invalid-missing-video.json"),
+    name: "wrong lab count fails",
+    file: path.join(__dirname, "invalid-wrong-lab-count.json"),
+    shouldPass: false,
+  },
+  {
+    name: "missing learn format fails",
+    file: path.join(__dirname, "invalid-missing-learn-format.json"),
+    shouldPass: false,
+  },
+  {
+    name: "invalid learn format fails",
+    file: path.join(__dirname, "invalid-bad-learn-format.json"),
     shouldPass: false,
   },
   {
@@ -56,6 +67,24 @@ const cases = [
   },
 ];
 
+const instructionChecks = [
+  {
+    name: "research instructions preserve extras in aditional-links",
+    needle:
+      "Preserve all valid, non-redundant `extras` in `aditional-links`. Do not silently drop",
+  },
+  {
+    name: "research instructions cross-check retained extras before writing tutorial.json",
+    needle:
+      "Before writing `tutorial.json`, cross-check every module: compare the retained extras you got from the learn and lab subagents against the final `aditional-links` array",
+  },
+  {
+    name: "research instructions forbid empty aditional-links when kept extras remain",
+    needle:
+      "It should not become `[]` if you still have kept extras.",
+  },
+];
+
 if (!fs.existsSync(validSpecPath)) {
   process.stderr.write(
     "Missing required valid fixture: validate-tutorial-specs/valid-tutorial.json\n"
@@ -68,7 +97,9 @@ if (!fs.existsSync(validSpecPath)) {
 
 let failedSpecs = 0;
 
-for (const spec of cases) {
+const researchInstruction = fs.readFileSync(researchInstructionPath, "utf8");
+
+for (const spec of validatorCases) {
   const result = spawnSync(process.execPath, [validatorPath, spec.file], {
     cwd: rootDir,
     encoding: "utf8",
@@ -95,12 +126,25 @@ for (const spec of cases) {
   }
 }
 
+for (const check of instructionChecks) {
+  const passed = researchInstruction.includes(check.needle);
+  process.stdout.write(`${passed ? "PASS" : "FAIL"} ${check.name}\n`);
+
+  if (!passed) {
+    failedSpecs += 1;
+    process.stdout.write(`  File: ${path.relative(rootDir, researchInstructionPath)}\n`);
+    process.stdout.write(`  Missing text: ${JSON.stringify(check.needle)}\n`);
+  }
+}
+
 if (failedSpecs > 0) {
   process.stderr.write(`\n${failedSpecs} spec(s) failed.\n`);
   process.exit(1);
 }
 
-process.stdout.write(`\nAll ${cases.length} validator specs passed.\n`);
+process.stdout.write(
+  `\nAll ${validatorCases.length + instructionChecks.length} validator/instruction specs passed.\n`
+);
 
 function indent(text) {
   return text
