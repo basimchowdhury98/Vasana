@@ -1,0 +1,41 @@
+{
+  "id": "crypto-tutorial",
+  "title": "Crypto Tutorial",
+  "description": "A beginner-friendly tutorial covering hashing.",
+  "modules": [
+    {
+      "id": "hashing",
+      "title": "Hashing",
+      "description": "Learn what cryptographic hashes are.",
+      "sections": [
+        {
+          "type": "learn",
+          "format": "video",
+          "title": "Video",
+          "description": "Intro video.",
+          "url": "https://example.com/video"
+        },
+        {
+          "type": "learn",
+          "format": "written",
+          "title": "Guide",
+          "description": "Written guide.",
+          "url": "https://example.com/guide"
+        },
+        {
+          "type": "lab",
+          "title": "Lab 1",
+          "description": "First lab.",
+          "url": "https://example.com/lab-1"
+        },
+        {
+          "type": "lab",
+          "title": "Lab 2",
+          "description": "Second lab.",
+          "url": "https://example.com/lab-2"
+        }
+      ],
+      "aditional-links": []
+    }
+  ]
+}

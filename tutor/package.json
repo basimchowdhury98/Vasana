@@ -1,0 +1,8 @@
+{
+  "name": "tutor",
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "enquirer": "^2.4.1"
+  }
+}
