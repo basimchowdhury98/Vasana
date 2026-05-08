@@ -795,6 +795,9 @@ function renderTutorialSite(tutorial) {
             resourceTitle: input.dataset.resourceTitle,
             resourceUrl: input.dataset.resourceUrl,
           });
+          if (input.dataset.legacyNoteFile) {
+            params.set("legacyFile", input.dataset.legacyNoteFile);
+          }
           const response = await fetch("/api/notes?" + params.toString());
           if (!response.ok) {
             throw new Error("Could not load note.");
@@ -1133,6 +1136,7 @@ function renderModuleNav(tutorial) {
 }
 
 function renderModule(module, index) {
+  const coreResources = enumerateResourcesByType(module.sections);
   return `
     <section class="module-card" id="${escapeHtml(module.id)}">
       <div class="module-heading">
@@ -1144,7 +1148,9 @@ function renderModule(module, index) {
         <h3 class="resource-group-title">Core path</h3>
         <p class="section-note">Start here. These are the main resources intended to carry the lesson.</p>
         <div class="resource-grid">
-          ${module.sections.map((section) => renderResourceCard(module, section, index)).join("")}
+          ${coreResources
+            .map(({ resource, typeIndex }) => renderResourceCard(module, resource, index, typeIndex))
+            .join("")}
         </div>
       </div>
       ${
@@ -1163,9 +1169,10 @@ function renderModule(module, index) {
   `;
 }
 
-function renderResourceCard(module, resource, moduleIndex) {
-  const noteFileName = getCoreNoteFileName(moduleIndex, resource.type);
-  const resourceKey = getCoreResourceKey(moduleIndex, resource.type);
+function renderResourceCard(module, resource, moduleIndex, typeIndex) {
+  const noteFileName = getCoreNoteFileName(moduleIndex, resource.type, typeIndex);
+  const legacyNoteFileName = getLegacyCoreNoteFileName(moduleIndex, resource.type, typeIndex);
+  const resourceKey = getCoreResourceKey(moduleIndex, resource.type, typeIndex);
   return `
     <article class="resource-card">
       <span class="resource-type">${escapeHtml(resource.type)}</span>
@@ -1178,7 +1185,7 @@ function renderResourceCard(module, resource, moduleIndex) {
           <button class="note-trigger" type="button" data-note-trigger="true">Take notes</button>
         </div>
       </div>
-      ${renderNoteEditor(noteFileName, resource)}
+      ${renderNoteEditor(noteFileName, resource, legacyNoteFileName)}
     </article>
   `;
 }
@@ -1204,11 +1211,14 @@ function renderAdditionalLink(module, resource, moduleIndex, additionalIndex) {
   `;
 }
 
-function renderNoteEditor(noteFileName, resource) {
+function renderNoteEditor(noteFileName, resource, legacyNoteFileName = "") {
+  const legacyAttribute = legacyNoteFileName
+    ? ` data-legacy-note-file="${escapeHtml(legacyNoteFileName)}"`
+    : "";
   return `
     <div class="note-editor">
       <label class="note-editor-label" for="${escapeHtml(noteFileName)}">Markdown notes</label>
-      <textarea class="note-editor-input" id="${escapeHtml(noteFileName)}" data-note-input="true" data-note-file="${escapeHtml(noteFileName)}" data-resource-title="${escapeHtml(resource.title)}" data-resource-url="${escapeHtml(resource.url)}" data-loaded="false"></textarea>
+      <textarea class="note-editor-input" id="${escapeHtml(noteFileName)}" data-note-input="true" data-note-file="${escapeHtml(noteFileName)}"${legacyAttribute} data-resource-title="${escapeHtml(resource.title)}" data-resource-url="${escapeHtml(resource.url)}" data-loaded="false"></textarea>
       <div class="note-status" data-note-status="true"></div>
     </div>
   `;
@@ -1218,20 +1228,37 @@ function renderChatTrigger(module, resource, resourceKey) {
   return `<button class="ai-trigger" type="button" aria-label="Open AI chat for ${escapeHtml(resource.title)}" title="Open AI chat" data-ai-trigger="true" data-chat-key="${escapeHtml(resourceKey)}" data-module-title="${escapeHtml(module.title)}" data-resource-title="${escapeHtml(resource.title)}" data-resource-type="${escapeHtml(resource.type)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2l1.8 4.7L18.5 8l-4.7 1.3L12 14l-1.8-4.7L5.5 8l4.7-1.3L12 2zm6.5 9l.9 2.6L22 14.5l-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6zM6 13l1.2 3.3L10.5 17l-3.3 1.2L6 21.5l-1.2-3.3L1.5 17l3.3-1.2L6 13z"/></svg></button>`;
 }
 
-function getCoreNoteFileName(moduleIndex, resourceType) {
-  return `mod${moduleIndex + 1}_${resourceType}.md`;
+function getCoreNoteFileName(moduleIndex, resourceType, typeIndex) {
+  return `mod${moduleIndex + 1}_${resourceType}${typeIndex}.md`;
+}
+
+function getLegacyCoreNoteFileName(moduleIndex, resourceType, typeIndex) {
+  return typeIndex === 1 ? `mod${moduleIndex + 1}_${resourceType}.md` : "";
 }
 
 function getAdditionalNoteFileName(moduleIndex, additionalIndex) {
   return `mod${moduleIndex + 1}_res${additionalIndex + 1}.md`;
 }
 
-function getCoreResourceKey(moduleIndex, resourceType) {
-  return `mod${moduleIndex + 1}_${resourceType}`;
+function getCoreResourceKey(moduleIndex, resourceType, typeIndex) {
+  return `mod${moduleIndex + 1}_${resourceType}${typeIndex}`;
 }
 
 function getAdditionalResourceKey(moduleIndex, additionalIndex) {
   return `mod${moduleIndex + 1}_res${additionalIndex + 1}`;
+}
+
+function enumerateResourcesByType(resources) {
+  const counts = new Map();
+  return resources.map((resource) => {
+    const type = typeof resource?.type === "string" && resource.type.trim() !== "" ? resource.type : "resource";
+    const typeIndex = (counts.get(type) || 0) + 1;
+    counts.set(type, typeIndex);
+    return {
+      resource,
+      typeIndex,
+    };
+  });
 }
 
 function renderChatModal() {

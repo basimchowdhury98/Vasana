@@ -276,6 +276,7 @@ async function startSiteServer({ tutorial, opencodePort, sitePort, siteFilePath 
       if (request.method === "GET" && request.url && request.url.startsWith("/api/notes")) {
         const requestUrl = new URL(request.url, `http://${HOST}:${sitePort}`);
         const fileName = asNoteFileName(requestUrl.searchParams.get("file"));
+        const legacyFileName = asNoteFileName(requestUrl.searchParams.get("legacyFile"));
         const resourceTitle = asCleanString(requestUrl.searchParams.get("resourceTitle"));
         const resourceUrl = asCleanString(requestUrl.searchParams.get("resourceUrl"));
 
@@ -283,17 +284,23 @@ async function startSiteServer({ tutorial, opencodePort, sitePort, siteFilePath 
           throw new Error("A valid note file name is required.");
         }
 
-        const notePath = resolveNotePath(fileName);
         const template = buildNoteTemplate({ resourceTitle, resourceUrl });
+        const candidatePaths = [resolveNotePath(fileName)];
+        if (legacyFileName && legacyFileName !== fileName) {
+          candidatePaths.push(resolveNotePath(legacyFileName));
+        }
         let content = template;
         let exists = false;
 
-        try {
-          content = await fs.readFile(notePath, "utf8");
-          exists = true;
-        } catch (error) {
-          if (error.code !== "ENOENT") {
-            throw error;
+        for (const notePath of candidatePaths) {
+          try {
+            content = await fs.readFile(notePath, "utf8");
+            exists = true;
+            break;
+          } catch (error) {
+            if (error.code !== "ENOENT") {
+              throw error;
+            }
           }
         }
 
@@ -373,9 +380,16 @@ function buildResourceIndex(tutorial) {
   const index = new Map();
 
   tutorial.modules.forEach((module, moduleIndex) => {
-    module.sections.forEach((resource) => {
-      const key = getCoreResourceKey(moduleIndex, resource.type);
-      index.set(key, buildResourceDescriptor({ key, module, resource }));
+    const coreResources = enumerateResourcesByType(module.sections);
+
+    coreResources.forEach(({ resource, typeIndex }) => {
+      const key = getCoreResourceKey(moduleIndex, resource.type, typeIndex);
+      const legacyKey = getLegacyCoreResourceKey(moduleIndex, resource.type, typeIndex);
+      const descriptor = buildResourceDescriptor({ key, module, resource, legacyKeys: legacyKey ? [legacyKey] : [] });
+      index.set(key, descriptor);
+      if (legacyKey && !index.has(legacyKey)) {
+        index.set(legacyKey, descriptor);
+      }
     });
 
     module["aditional-links"].forEach((resource, additionalIndex) => {
@@ -387,9 +401,10 @@ function buildResourceIndex(tutorial) {
   return index;
 }
 
-function buildResourceDescriptor({ key, module, resource }) {
+function buildResourceDescriptor({ key, module, resource, legacyKeys = [] }) {
   return {
     key,
+    legacyKeys,
     moduleID: module.id,
     moduleTitle: module.title,
     moduleDescription: module.description,
@@ -578,8 +593,11 @@ function extractMessageText(message) {
 }
 
 async function ensureChatSession({ opencodePort, tutorial, resource }) {
-  const existingRecord = await loadChatSessionRecord(resource.key);
+  const { record: existingRecord, usedLegacyKey } = await loadChatSessionRecord(resource.key, resource.legacyKeys);
   const record = existingRecord || createChatSessionRecord(resource);
+  if (usedLegacyKey) {
+    await saveChatSessionRecord(record);
+  }
 
   if (record.sessionID && (await doesSessionExist(opencodePort, record.sessionID))) {
     return record;
@@ -626,19 +644,31 @@ function createChatSessionRecord(resource) {
   };
 }
 
-async function loadChatSessionRecord(key) {
-  const sessionPath = resolveChatSessionPath(key);
+async function loadChatSessionRecord(key, legacyKeys = []) {
+  const candidateKeys = [key, ...legacyKeys.filter((legacyKey) => legacyKey && legacyKey !== key)];
 
-  try {
-    const raw = await fs.readFile(sessionPath, "utf8");
-    const parsed = JSON.parse(raw);
-    return normalizeChatSessionRecord(key, parsed);
-  } catch (error) {
-    if (error.code === "ENOENT") {
-      return null;
+  for (const candidateKey of candidateKeys) {
+    const sessionPath = resolveChatSessionPath(candidateKey);
+
+    try {
+      const raw = await fs.readFile(sessionPath, "utf8");
+      const parsed = JSON.parse(raw);
+      return {
+        record: normalizeChatSessionRecord(key, parsed),
+        usedLegacyKey: candidateKey !== key,
+      };
+    } catch (error) {
+      if (error.code === "ENOENT") {
+        continue;
+      }
+      throw error;
     }
-    throw error;
   }
+
+  return {
+    record: null,
+    usedLegacyKey: false,
+  };
 }
 
 function normalizeChatSessionRecord(key, parsed) {
@@ -1032,12 +1062,29 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function getCoreResourceKey(moduleIndex, resourceType) {
-  return `mod${moduleIndex + 1}_${resourceType}`;
+function getCoreResourceKey(moduleIndex, resourceType, typeIndex) {
+  return `mod${moduleIndex + 1}_${resourceType}${typeIndex}`;
+}
+
+function getLegacyCoreResourceKey(moduleIndex, resourceType, typeIndex) {
+  return typeIndex === 1 ? `mod${moduleIndex + 1}_${resourceType}` : "";
 }
 
 function getAdditionalResourceKey(moduleIndex, additionalIndex) {
   return `mod${moduleIndex + 1}_res${additionalIndex + 1}`;
+}
+
+function enumerateResourcesByType(resources) {
+  const counts = new Map();
+  return resources.map((resource) => {
+    const type = typeof resource?.type === "string" && resource.type.trim() !== "" ? resource.type : "resource";
+    const typeIndex = (counts.get(type) || 0) + 1;
+    counts.set(type, typeIndex);
+    return {
+      resource,
+      typeIndex,
+    };
+  });
 }
 
 module.exports = {
