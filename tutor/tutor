@@ -2,8 +2,8 @@
 
 const fs = require("node:fs/promises");
 const path = require("node:path");
-const readline = require("node:readline/promises");
 const { spawn, spawnSync } = require("node:child_process");
+const { AutoComplete, Confirm, Input } = require("enquirer");
 const { runTutorialApp } = require("./tutor-runtime");
 
 const ROOT_DIR = __dirname;
@@ -22,6 +22,32 @@ const AUDIT_FILE_NAMES = {
 };
 const AUTHORING_MODEL = "openai/gpt-5.4";
 const AUTHORING_AGENT = "build";
+const CREATE_NEW_TUTORIAL = Symbol("create-new-tutorial");
+const PROMPT_CANCELLED = Symbol("prompt-cancelled");
+
+class TutorialAutocompletePrompt extends AutoComplete {
+  constructor(options) {
+    super(options);
+    this.creatingNewTutorial = false;
+  }
+
+  format() {
+    if (this.creatingNewTutorial) {
+      return this.styles.primary("create new tutorial");
+    }
+
+    return super.format();
+  }
+
+  async newItem() {
+    this.creatingNewTutorial = true;
+    this.value = CREATE_NEW_TUTORIAL;
+    this.state.submitted = true;
+    await this.render();
+    await this.close();
+    this.emit("submit", this.value);
+  }
+}
 
 async function main() {
   const args = process.argv.slice(2);
@@ -63,81 +89,242 @@ async function main() {
 async function promptForTutorialID() {
   await fs.mkdir(TUTORIALS_DIR, { recursive: true });
   const tutorials = await listTutorials();
+  const tutorialStatus = new Map([
+    ...tutorials.ready.map((tutorialID) => [tutorialID, "ready"]),
+    ...tutorials.draft.map((tutorialID) => [tutorialID, "draft"]),
+  ]);
+  const tutorialChoices = [
+    ...tutorials.ready.map((tutorialID) => buildTutorialChoice(tutorialID, "ready")),
+    ...tutorials.draft.map((tutorialID) => buildTutorialChoice(tutorialID, "draft")),
+  ];
 
-  process.stdout.write("Available tutorials:\n");
-  if (tutorials.ready.length === 0) {
-    process.stdout.write("  (none yet)\n");
-  } else {
-    for (const tutorialID of tutorials.ready) {
-      process.stdout.write(`  - ${tutorialID}\n`);
-    }
+  const selection = await runPrompt(
+    new TutorialAutocompletePrompt({
+      name: "tutorialID",
+      message: "Tutorial id",
+      limit: 8,
+      choices: tutorialChoices,
+      footer() {
+        if (tutorialChoices.length === 0) {
+          return "No tutorials yet. Press Ctrl+N to create one.";
+        }
+
+        if (this.visible.length === 0) {
+          return "No matches. Press Ctrl+N to create a new tutorial.";
+        }
+
+        return "Type to filter. Enter opens the selected tutorial. Ctrl+N creates a new tutorial.";
+      },
+      suggest(input, choices) {
+        return suggestTutorialChoices(input, choices);
+      },
+    })
+  );
+
+  if (selection === PROMPT_CANCELLED) {
+    return null;
   }
 
-  if (tutorials.draft.length > 0) {
-    process.stdout.write("\nDraft tutorials:\n");
-    for (const tutorialID of tutorials.draft) {
-      process.stdout.write(`  - ${tutorialID}\n`);
-    }
+  if (selection === CREATE_NEW_TUTORIAL) {
+    const tutorialID = await promptForNewTutorialID(tutorialStatus);
+    return tutorialID ? { mode: "author", id: tutorialID } : null;
   }
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+  const selectionStatus = tutorialStatus.get(selection);
+  if (selectionStatus === "ready") {
+    return { mode: "study", id: selection };
+  }
 
-  try {
-    const answer = (await rl.question("\nTutorial id: ")).trim();
-    if (!answer) {
-      process.stdout.write("No tutorial selected.\n");
-      return null;
-    }
-
-    if (!TUTORIAL_ID_PATTERN.test(answer)) {
-      throw new Error("Tutorial IDs must use lowercase letters, numbers, underscores, or hyphens.");
-    }
-
-    if (tutorials.ready.includes(answer)) {
-      return { mode: "study", id: answer };
-    }
-
-    if (tutorials.draft.includes(answer)) {
-      const shouldContinue = await confirm(
-        rl,
-        `Tutorial \"${answer}\" is a draft without a finished tutorial.json. Continue authoring it?`,
-        true
-      );
-      return shouldContinue ? { mode: "author", id: answer } : null;
-    }
-
-    const shouldCreate = await confirm(
-      rl,
-      `Tutorial \"${answer}\" does not exist. Create it?`,
+  if (selectionStatus === "draft") {
+    const shouldContinue = await confirm(
+      `Tutorial \"${selection}\" is a draft without a finished tutorial.json. Continue authoring it?`,
       true
     );
-    return shouldCreate ? { mode: "author", id: answer } : null;
-  } finally {
-    rl.close();
+    return shouldContinue ? { mode: "author", id: selection } : null;
   }
+
+  return null;
 }
 
-async function confirm(rl, message, defaultYes) {
-  const suffix = defaultYes ? " [Y/n] " : " [y/N] ";
-  const answer = (await rl.question(`${message}${suffix}`)).trim().toLowerCase();
+function buildTutorialChoice(tutorialID, status) {
+  return {
+    name: tutorialID,
+    message: tutorialID,
+    hint: status,
+  };
+}
 
-  if (answer === "") {
-    return defaultYes;
+async function promptForNewTutorialID(existingTutorials) {
+  const tutorialID = await runPrompt(
+    new Input({
+      name: "tutorialID",
+      message: "New tutorial id",
+      hint: "Use lowercase letters, numbers, underscores, or hyphens.",
+      validate(value) {
+        const tutorialID = value.trim();
+
+        if (!tutorialID) {
+          return "Tutorial id is required.";
+        }
+
+        if (!TUTORIAL_ID_PATTERN.test(tutorialID)) {
+          return "Tutorial IDs must use lowercase letters, numbers, underscores, or hyphens.";
+        }
+
+        if (existingTutorials.has(tutorialID)) {
+          return `Tutorial \"${tutorialID}\" already exists.`;
+        }
+
+        return true;
+      },
+      result(value) {
+        return value.trim();
+      },
+    })
+  );
+
+  if (tutorialID === PROMPT_CANCELLED) {
+    return null;
   }
 
-  if (answer === "y" || answer === "yes") {
-    return true;
-  }
+  return tutorialID;
+}
 
-  if (answer === "n" || answer === "no") {
+async function confirm(message, defaultYes) {
+  const answer = await runPrompt(
+    new Confirm({
+      name: "confirmed",
+      message,
+      initial: defaultYes,
+    })
+  );
+
+  if (answer === PROMPT_CANCELLED) {
     return false;
   }
 
-  process.stdout.write("Please answer yes or no.\n");
-  return confirm(rl, message, defaultYes);
+  return answer;
+}
+
+async function runPrompt(prompt) {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+
+    const complete = (handler, value) => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      process.off("SIGINT", handleSigint);
+      handler(value);
+    };
+
+    const handleSigint = async () => {
+      try {
+        await prompt.cancel();
+      } catch {
+        // Ignore prompt shutdown errors while exiting from Ctrl+C.
+      }
+
+      complete(resolve, PROMPT_CANCELLED);
+    };
+
+    process.on("SIGINT", handleSigint);
+    prompt.run().then(
+      (value) => complete(resolve, value),
+      (error) => {
+        if (error === "" || error == null) {
+          complete(resolve, PROMPT_CANCELLED);
+          return;
+        }
+
+        complete(reject, error);
+      }
+    );
+  });
+}
+
+function suggestTutorialChoices(input, choices) {
+  const query = normalizeTutorialQuery(input);
+  if (!query.compact) {
+    return choices;
+  }
+
+  return choices
+    .map((choice) => ({
+      choice,
+      score: scoreTutorialMatch(query, choice.name),
+    }))
+    .filter((entry) => entry.score > Number.NEGATIVE_INFINITY)
+    .sort((left, right) => right.score - left.score || left.choice.name.localeCompare(right.choice.name))
+    .map((entry) => entry.choice);
+}
+
+function scoreTutorialMatch(query, tutorialID) {
+  const rawCandidate = String(tutorialID || "").toLowerCase();
+  const compactCandidate = rawCandidate.replace(/[-_]/g, "");
+
+  if (query.raw === rawCandidate || query.compact === compactCandidate) {
+    return 5000 - rawCandidate.length;
+  }
+
+  if (rawCandidate.startsWith(query.raw) || compactCandidate.startsWith(query.compact)) {
+    return 4000 - rawCandidate.length;
+  }
+
+  const rawSubstringIndex = rawCandidate.indexOf(query.raw);
+  if (rawSubstringIndex >= 0) {
+    return 3000 - rawSubstringIndex * 10 - rawCandidate.length;
+  }
+
+  const compactSubstringIndex = compactCandidate.indexOf(query.compact);
+  if (compactSubstringIndex >= 0) {
+    return 2500 - compactSubstringIndex * 10 - compactCandidate.length;
+  }
+
+  const subsequenceScore = scoreSubsequenceMatch(query.compact, compactCandidate);
+  return subsequenceScore === null ? Number.NEGATIVE_INFINITY : 1000 + subsequenceScore;
+}
+
+function scoreSubsequenceMatch(query, candidate) {
+  let queryIndex = 0;
+  let score = 0;
+  let firstMatchIndex = -1;
+  let previousMatchIndex = -2;
+
+  for (let candidateIndex = 0; candidateIndex < candidate.length; candidateIndex += 1) {
+    if (candidate[candidateIndex] !== query[queryIndex]) {
+      continue;
+    }
+
+    if (firstMatchIndex === -1) {
+      firstMatchIndex = candidateIndex;
+      score += Math.max(0, 15 - candidateIndex);
+    }
+
+    score += 5;
+    if (candidateIndex === previousMatchIndex + 1) {
+      score += 8;
+    }
+
+    previousMatchIndex = candidateIndex;
+    queryIndex += 1;
+
+    if (queryIndex === query.length) {
+      return score;
+    }
+  }
+
+  return null;
+}
+
+function normalizeTutorialQuery(input) {
+  const raw = String(input || "").trim().toLowerCase();
+  return {
+    raw,
+    compact: raw.replace(/[\s_-]+/g, ""),
+  };
 }
 
 async function startAuthoringSession(tutorialID, tutorialDir, flags) {
